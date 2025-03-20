@@ -1,5 +1,9 @@
 package org.silsagusi.joonggaemoa.global.api;
 
+import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
+import org.silsagusi.joonggaemoa.global.api.exception.ExceptionDto;
+import org.springframework.http.HttpStatus;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -7,12 +11,8 @@ import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
-import org.silsagusi.joonggaemoa.global.api.exception.ExceptionDto;
-import org.springframework.http.HttpStatus;
-
 @Getter
-@JsonPropertyOrder({"success", "results"})
+@JsonPropertyOrder({"success", "data", "error"})
 @AllArgsConstructor
 public class ApiResponse<T> {
 
@@ -24,7 +24,11 @@ public class ApiResponse<T> {
 	@Nullable
 	ExceptionDto error;
 
-	public static <T> ApiResponse<T> ok(@Nullable final T data) {
+	public static <T> ApiResponse<T> ok() {
+		return new ApiResponse<>(HttpStatus.OK, true, null, null);
+	}
+
+	public static <T> ApiResponse<T> ok(final T data) {
 		return new ApiResponse<>(HttpStatus.OK, true, data, null);
 	}
 
