@@ -1,16 +1,11 @@
 package org.silsagusi.joonggaemoa.domain.consultation.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
 import org.silsagusi.joonggaemoa.domain.agent.entity.AgentCustomer;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,7 +28,7 @@ public class Consultation {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private AgentCustomer agentCustomer;
 
-	private LocalDate date;
+	private LocalDateTime date;
 
 	private String purpose;
 
@@ -46,4 +41,8 @@ public class Consultation {
 	private String assetStatus;
 
 	private String memo;
+
+	@Column(name = "consultation_status")
+	@Enumerated(EnumType.STRING)
+	private ConsultationStatus consultationStatus;
 }

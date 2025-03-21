@@ -15,7 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @Builder
 @ToString
-@Entity(name = "properties")
+@Entity(name = "complexes")
 @Getter
 public class Complex {
 
