@@ -8,5 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AgentRepository extends JpaRepository<Agent, Long> {
 	Optional<Agent> getAgentById(Long id);
 
-	Agent findByUsername(String username);
+	Optional<Agent> findByUsername(String username);
+
+	Optional<Agent> findByNameAndPhone(String name, String phone);
 }

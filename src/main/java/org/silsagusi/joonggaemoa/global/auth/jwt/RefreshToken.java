@@ -1,4 +1,4 @@
-package org.silsagusi.joonggaemoa.global.auth.jwt.refreshToken;
+package org.silsagusi.joonggaemoa.global.auth.jwt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +28,9 @@ public class RefreshToken {
 		refreshTokens.remove(refreshToken);
 	}
 
-	public static void removeUserRefreshToken(String refreshToken) {
+	public static void removeUserRefreshToken(Long id) {
 		for (Map.Entry<String, Long> entry : refreshTokens.entrySet()) {
-			if (entry.getValue().equals(refreshToken)) {
+			if (entry.getValue().equals(id)) {
 				refreshTokens.remove(entry.getKey());
 			}
 		}

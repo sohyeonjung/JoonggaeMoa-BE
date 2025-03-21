@@ -5,15 +5,19 @@ import org.silsagusi.joonggaemoa.domain.agent.repository.AgentRepository;
 import org.silsagusi.joonggaemoa.domain.agent.service.command.AgentCommand;
 import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
 import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
+import org.silsagusi.joonggaemoa.global.auth.jwt.JwtProvider;
+import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class AgentService {
 
+	private final JwtProvider jwtProvider;
 	private final AgentRepository agentRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -41,10 +45,30 @@ public class AgentService {
 		agentRepository.save(agent);
 	}
 
-	public AgentCommand getAgent(Long id) {
+	public AgentCommand getAgentByNameAndPhone(String name, String phone) {
+		Agent agent = agentRepository.findByNameAndPhone(name, phone)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+
+		return AgentCommand.toCommand(agent);
+	}
+
+	public AgentCommand getAgentById(Long id) {
 		Agent agent = agentRepository.getAgentById(id)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
 		return AgentCommand.toCommand(agent);
+	}
+
+	public void logout(String accessToken) {
+		if (jwtProvider.validateToken(accessToken)) {
+			throw new CustomException(ErrorCode.UNAUTHORIZED);
+		}
+		Claims claims = jwtProvider.getClaims(accessToken);
+		String username = (String)claims.get("username");
+
+		Agent agent = agentRepository.findByUsername(username)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+
+		RefreshToken.removeUserRefreshToken(agent.getId());
 	}
 }

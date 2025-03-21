@@ -25,8 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtProvider {
 
-	private static final long ACCESS_TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000L;
-	private static final long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000L;
+	private static final long ACCESS_TOKEN_EXPIRATION_TIME = 10 * 60 * 1000L;
+	private static final long REFRESH_TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000L;
 
 	@Value("${jwt.secret}")
 	private String secret;
@@ -79,9 +79,9 @@ public class JwtProvider {
 			.compact();
 	}
 
-	public String generateRefreshToken(final String username) {
+	public String generateRefreshToken(final Long id) {
 		return Jwts.builder()
-			.setId(username + "")
+			.setId(id + "")
 			.setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.signWith(key)
@@ -95,12 +95,13 @@ public class JwtProvider {
 				.build()
 				.parseClaimsJws(token);
 			return true;
+		} catch (ExpiredJwtException e) {
+			log.warn("Expired JWT token: {}", e.getMessage());
+			// TODO 만료 체크 후 재발급 과정
 		} catch (SecurityException e) {
 			log.warn("Invalid JWT signature: {}", e.getMessage());
 		} catch (MalformedJwtException e) {
 			log.warn("Invalid JWT token: {}", e.getMessage());
-		} catch (ExpiredJwtException e) {
-			log.warn("Expired JWT token: {}", e.getMessage());
 		} catch (UnsupportedJwtException e) {
 			log.warn("Unsupported JWT token: {}", e.getMessage());
 		} catch (IllegalArgumentException e) {
