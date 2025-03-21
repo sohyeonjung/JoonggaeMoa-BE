@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
+import org.silsagusi.joonggaemoa.global.auth.userDetails.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -56,13 +57,19 @@ public class JwtProvider {
 			.getBody();
 	}
 
-	public Date getExpirationDateFromToken(final String token) {
-		return Jwts.parserBuilder()
-			.setSigningKey(key)
-			.build()
-			.parseClaimsJws(token)
-			.getBody()
-			.getExpiration();
+	public Boolean isTokenExpired(final String token) {
+		try {
+			Jwts.parserBuilder()
+				.setSigningKey(key)
+				.build()
+				.parseClaimsJws(token)
+				.getBody()
+				.getExpiration();
+			return false;
+		} catch (ExpiredJwtException e) {
+			log.warn("Expired JWT token: {}", e.getMessage());
+		}
+		return true;
 	}
 
 	public String generateAccessToken(final Authentication authentication) {
@@ -71,6 +78,7 @@ public class JwtProvider {
 			.collect(Collectors.joining(","));
 
 		return Jwts.builder()
+			.setId(((CustomUserDetails)authentication).getId() + "")
 			.claim("username", authentication.getName())
 			.claim("roles", roles)
 			.setIssuedAt(new Date(System.currentTimeMillis()))
@@ -95,9 +103,6 @@ public class JwtProvider {
 				.build()
 				.parseClaimsJws(token);
 			return true;
-		} catch (ExpiredJwtException e) {
-			log.warn("Expired JWT token: {}", e.getMessage());
-			// TODO 만료 체크 후 재발급 과정
 		} catch (SecurityException e) {
 			log.warn("Invalid JWT signature: {}", e.getMessage());
 		} catch (MalformedJwtException e) {

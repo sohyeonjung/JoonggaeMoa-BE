@@ -64,11 +64,7 @@ public class AgentService {
 			throw new CustomException(ErrorCode.UNAUTHORIZED);
 		}
 		Claims claims = jwtProvider.getClaims(accessToken);
-		String username = (String)claims.get("username");
 
-		Agent agent = agentRepository.findByUsername(username)
-			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
-
-		RefreshToken.removeUserRefreshToken(agent.getId());
+		RefreshToken.removeRefreshToken(Long.valueOf(claims.getId()));
 	}
 }

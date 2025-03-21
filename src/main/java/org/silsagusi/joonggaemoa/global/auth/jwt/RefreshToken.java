@@ -13,24 +13,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RefreshToken {
 
-	protected static final Map<String, Long> refreshTokens = new HashMap<>();
+	protected static final Map<Long, String> refreshTokens = new HashMap<>();
 
-	public static Long getRefreshToken(String refreshToken) {
-		return Optional.ofNullable(refreshTokens.get(refreshToken))
+	public static String getRefreshToken(Long id) {
+		return Optional.ofNullable(refreshTokens.get(id))
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 	}
 
-	public static void putRefreshToken(String refreshToken, Long id) {
-		refreshTokens.put(refreshToken, id);
+	public static void putRefreshToken(Long id, String refreshToken) {
+		refreshTokens.put(id, refreshToken);
 	}
 
-	public static void removeRefreshToken(String refreshToken) {
-		refreshTokens.remove(refreshToken);
+	public static void removeRefreshToken(Long id) {
+		refreshTokens.remove(id);
 	}
 
-	public static void removeUserRefreshToken(Long id) {
-		for (Map.Entry<String, Long> entry : refreshTokens.entrySet()) {
-			if (entry.getValue().equals(id)) {
+	public static void removeUserFromRefreshToken(String refreshToken) {
+		for (Map.Entry<Long, String> entry : refreshTokens.entrySet()) {
+			if (entry.getValue().equals(refreshToken)) {
 				refreshTokens.remove(entry.getKey());
 			}
 		}

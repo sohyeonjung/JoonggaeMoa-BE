@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 		Authentication authResult) throws IOException, ServletException {
 
-		CustomUserDetails customUserDetails = (CustomUserDetails)authResult.getPrincipal();
+		CustomUserDetails customUserDetails = (CustomUserDetails)authResult;
 
 		String accessToken = jwtProvider.generateAccessToken(authResult);
 		String refreshToken = jwtProvider.generateRefreshToken(customUserDetails.getId());
@@ -68,6 +68,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.addHeader("Authorization", "Bearer " + accessToken);
 
-		RefreshToken.putRefreshToken(refreshToken, customUserDetails.getId());
+		RefreshToken.putRefreshToken(customUserDetails.getId(), refreshToken);
 	}
 }
