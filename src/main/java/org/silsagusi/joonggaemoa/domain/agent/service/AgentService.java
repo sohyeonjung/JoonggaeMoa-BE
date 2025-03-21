@@ -32,6 +32,10 @@ public class AgentService {
 		String region,
 		String businessNo
 	) {
+		if (agentRepository.findByUsername(username).isPresent()) {
+			throw new CustomException(ErrorCode.USERNAME_CONFLICT);
+		}
+
 		Agent agent = Agent.builder()
 			.username(username)
 			.password(bCryptPasswordEncoder.encode(password))
