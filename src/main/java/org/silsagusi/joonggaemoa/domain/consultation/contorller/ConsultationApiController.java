@@ -1,25 +1,31 @@
 package org.silsagusi.joonggaemoa.domain.consultation.contorller;
 
-import lombok.RequiredArgsConstructor;
-import org.silsagusi.joonggaemoa.domain.consultation.entity.ConsultationDTO;
+import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.ConsultationRequestDto;
+import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.ConsultationResponseDto;
 import org.silsagusi.joonggaemoa.domain.consultation.service.ConsultationService;
+import org.silsagusi.joonggaemoa.global.api.ApiResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/agents/{agentId}/consultations")
 @RequiredArgsConstructor
 public class ConsultationApiController {
 
-    private final ConsultationService consultationService;
+	private final ConsultationService consultationService;
 
-    //상담 예약
-    @PostMapping("")
-    public ResponseEntity<ConsultationDTO> createConsultation(
-            @PathVariable Long agentId,
-            @RequestBody ConsultationDTO consultationDTO
-    ){
-        ConsultationDTO savedConsultation = consultationService.createConsultation(agentId,consultationDTO);
-        return ResponseEntity.ok(savedConsultation);
-    }
+	//상담 예약
+	@PostMapping("/api/agents/{agentId}/consultations")
+	public ResponseEntity<ApiResponse<ConsultationResponseDto>> createConsultation(
+		@PathVariable Long agentId,
+		@RequestBody ConsultationRequestDto consultationRequestDto
+	) {
+		ConsultationResponseDto responseDto = consultationService.createConsultation(agentId,
+			consultationRequestDto);
+		return ResponseEntity.ok(ApiResponse.created(responseDto));
+	}
 }
