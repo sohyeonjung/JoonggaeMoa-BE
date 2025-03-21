@@ -55,7 +55,7 @@ public class SecurityConfig {
 		httpSecurity
 			.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
-			.logout(logout -> logout.logoutUrl("/api/agent/logout"))
+			// .logout(logout -> logout.logoutUrl("/api/agent/logout"))
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
 			.sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

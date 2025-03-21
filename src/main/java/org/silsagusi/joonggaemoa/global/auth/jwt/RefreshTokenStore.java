@@ -19,11 +19,11 @@ public class RefreshTokenStore {
 			.set(REFRESH_TOKEN_PREFIX + username, refreshToken, expirationTimeInSeconds, TimeUnit.SECONDS);
 	}
 
-	public void deleteRefreshToken(String tokenId) {
-		redisTemplate.delete(REFRESH_TOKEN_PREFIX + tokenId);
+	public void deleteRefreshToken(String username) {
+		redisTemplate.delete(REFRESH_TOKEN_PREFIX + username);
 	}
 
-	public String getRefreshToken(String tokenId) {
-		return redisTemplate.opsForValue().get(REFRESH_TOKEN_PREFIX + tokenId);
+	public String getRefreshToken(String username) {
+		return redisTemplate.opsForValue().get(REFRESH_TOKEN_PREFIX + username);
 	}
 }

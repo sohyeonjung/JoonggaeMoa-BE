@@ -6,6 +6,7 @@ import org.silsagusi.joonggaemoa.domain.agent.service.command.AgentCommand;
 import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
 import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
 import org.silsagusi.joonggaemoa.global.auth.jwt.JwtProvider;
+import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshTokenStore;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ public class AgentService {
 	private final JwtProvider jwtProvider;
 	private final AgentRepository agentRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	private final RefreshTokenStore refreshTokenStore;
 
 	public void signup(
 		String username,
@@ -59,9 +61,12 @@ public class AgentService {
 	}
 
 	public void logout(String accessToken) {
-		if (jwtProvider.validateToken(accessToken)) {
+		if (Boolean.FALSE.equals(jwtProvider.validateToken(accessToken))) {
 			throw new CustomException(ErrorCode.UNAUTHORIZED);
 		}
 		Claims claims = jwtProvider.getClaims(accessToken);
+		String username = claims.get("username", String.class);
+
+		refreshTokenStore.deleteRefreshToken(username);
 	}
 }

@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -39,8 +41,10 @@ public class AgentController {
 	@GetMapping("/api/agent/username")
 	public ResponseEntity<ApiResponse<FindUsernameResponseDto>> getUsername(
 		@RequestBody FindUsernameRequestDto findUsernameRequestDto) {
-		AgentCommand agentCommand = agentService.getAgentByNameAndPhone(findUsernameRequestDto.getName(),
-			findUsernameRequestDto.getPhone());
+		AgentCommand agentCommand = agentService.getAgentByNameAndPhone(
+			findUsernameRequestDto.getName(),
+			findUsernameRequestDto.getPhone()
+		);
 
 		return ResponseEntity.ok(ApiResponse.ok(
 			new FindUsernameResponseDto(agentCommand.getUsername())
@@ -48,8 +52,15 @@ public class AgentController {
 	}
 
 	@PostMapping("/api/agent/logout")
-	public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
-		agentService.logout(request.getHeader("Authorization"));
+	public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request, HttpServletResponse response) {
+		agentService.logout(request.getHeader("Authorization").substring(7));
+
+		Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+		refreshTokenCookie.setHttpOnly(true);
+		refreshTokenCookie.setSecure(true);
+		refreshTokenCookie.setPath("/");
+		refreshTokenCookie.setMaxAge(0);
+		response.addCookie(refreshTokenCookie);
 
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
