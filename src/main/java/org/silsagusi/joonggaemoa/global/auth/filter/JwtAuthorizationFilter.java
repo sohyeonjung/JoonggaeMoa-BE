@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.silsagusi.joonggaemoa.global.auth.jwt.JwtProvider;
-import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshToken;
+import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshTokenStore;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,51 +24,35 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	private final JwtProvider jwtProvider;
+	private final RefreshTokenStore refreshTokenStore;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
-		final String token = request.getHeader("Authorization");
+		String token = request.getHeader("Authorization");
 
-		Long id = null;
 		String username = null;
-		String roles = null;
+		String role = null;
 
 		if (token != null && !token.isEmpty()) {
-			Claims claims = jwtProvider.getClaims(token.substring(7));
-			id = Long.valueOf(claims.getId());
+			token = token.substring(7);
+			Claims claims = jwtProvider.getClaims(token);
 			username = claims.get("username", String.class);
-			roles = claims.get("roles", String.class);
+			role = claims.get("role", String.class);
 		}
 
 		if (username != null && !username.isEmpty() && SecurityContextHolder.getContext().getAuthentication() == null) {
-			Authentication authentication = getUserAuth(username, roles);
-
+			Authentication authentication = getUserAuth(username, role);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-
-			if (jwtProvider.isTokenExpired(token)) {
-				String refreshToken = RefreshToken.getRefreshToken(id);
-
-				if (refreshToken != null) {
-					String newAccessToken = jwtProvider.generateAccessToken(authentication);
-					String newRefreshToken = jwtProvider.generateRefreshToken(id);
-
-					RefreshToken.removeRefreshToken(id);
-					RefreshToken.putRefreshToken(id, newRefreshToken);
-
-					response.addHeader("Authorization", "Bearer " + newAccessToken);
-					log.info("Refresh token: " + newAccessToken);
-				}
-			}
 		}
 
 		filterChain.doFilter(request, response);
 	}
 
-	private UsernamePasswordAuthenticationToken getUserAuth(String username, String roles) {
+	private UsernamePasswordAuthenticationToken getUserAuth(String username, String role) {
 		return new UsernamePasswordAuthenticationToken(
 			username, "",
-			Collections.singleton(new SimpleGrantedAuthority(roles))
+			Collections.singleton(new SimpleGrantedAuthority(role))
 		);
 	}
 }

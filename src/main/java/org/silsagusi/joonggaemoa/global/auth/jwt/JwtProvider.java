@@ -1,14 +1,10 @@
 package org.silsagusi.joonggaemoa.global.auth.jwt;
 
 import java.util.Date;
-import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
-import org.silsagusi.joonggaemoa.global.auth.userDetails.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -26,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtProvider {
 
-	private static final long ACCESS_TOKEN_EXPIRATION_TIME = 10 * 60 * 1000L;
+	private static final long ACCESS_TOKEN_EXPIRATION_TIME = 15 * 60 * 1000L;
 	private static final long REFRESH_TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000L;
 
 	@Value("${jwt.secret}")
@@ -44,17 +40,23 @@ public class JwtProvider {
 			return null;
 		}
 
-		final Claims claims = getAllClaimsFromToken(token);
-
-		return claims;
-	}
-
-	private Claims getAllClaimsFromToken(final String token) {
 		return Jwts.parserBuilder()
 			.setSigningKey(key)
 			.build()
 			.parseClaimsJws(token)
 			.getBody();
+	}
+
+	public String getTokenId(final String token) {
+		return getClaims(token).getId();
+	}
+
+	public Long getExpirationTime(final String token) {
+		return getClaims(token).getExpiration().getTime();
+	}
+
+	public String getSubject(final String token) {
+		return getClaims(token).getSubject();
 	}
 
 	public Boolean isTokenExpired(final String token) {
@@ -72,24 +74,20 @@ public class JwtProvider {
 		return true;
 	}
 
-	public String generateAccessToken(final Authentication authentication) {
-		String roles = authentication.getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority)
-			.collect(Collectors.joining(","));
-
+	public String generateAccessToken(final Long id, String username, String role) {
 		return Jwts.builder()
-			.setId(((CustomUserDetails)authentication).getId() + "")
-			.claim("username", authentication.getName())
-			.claim("roles", roles)
+			.setId(id + "")
+			.claim("username", username)
+			.claim("role", role)
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
 			.signWith(key)
 			.compact();
 	}
 
-	public String generateRefreshToken(final Long id) {
+	public String generateRefreshToken(String username) {
 		return Jwts.builder()
-			.setId(id + "")
+			.setSubject(username)
 			.setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.signWith(key)

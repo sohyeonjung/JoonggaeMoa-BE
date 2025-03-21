@@ -8,6 +8,7 @@ import org.silsagusi.joonggaemoa.global.auth.filter.JwtAuthorizationFilter;
 import org.silsagusi.joonggaemoa.global.auth.handler.CustomAccessDeniedHandler;
 import org.silsagusi.joonggaemoa.global.auth.handler.CustomAuthenticationEntryPointHandler;
 import org.silsagusi.joonggaemoa.global.auth.jwt.JwtProvider;
+import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshTokenStore;
 import org.silsagusi.joonggaemoa.global.auth.userDetails.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +43,7 @@ public class SecurityConfig {
 	private final JwtProvider jwtProvider;
 	private final ObjectMapper objectMapper;
 	private final CustomUserDetailsService customUserDetailsService;
+	private final RefreshTokenStore refreshTokenStore;
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
@@ -58,9 +60,10 @@ public class SecurityConfig {
 			.cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
 			.sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.addFilterBefore(
-				new JwtAuthenticationFilter(authenticationManager(customUserDetailsService), jwtProvider, objectMapper),
+				new JwtAuthenticationFilter(authenticationManager(customUserDetailsService), jwtProvider, objectMapper,
+					refreshTokenStore),
 				UsernamePasswordAuthenticationFilter.class)
-			.addFilterBefore(new JwtAuthorizationFilter(jwtProvider), JwtAuthenticationFilter.class)
+			.addFilterBefore(new JwtAuthorizationFilter(jwtProvider, refreshTokenStore), JwtAuthenticationFilter.class)
 			.authorizeHttpRequests(auth -> auth
 				.anyRequest().permitAll()
 			)

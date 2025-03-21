@@ -1,15 +1,18 @@
 package org.silsagusi.joonggaemoa.global.auth.filter;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import org.silsagusi.joonggaemoa.domain.agent.controller.dto.LoginRequestDto;
 import org.silsagusi.joonggaemoa.global.auth.jwt.JwtProvider;
-import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshToken;
+import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshTokenStore;
 import org.silsagusi.joonggaemoa.global.auth.userDetails.CustomUserDetails;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,12 +29,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private final AuthenticationManager authenticationManager;
 	private final JwtProvider jwtProvider;
 	private final ObjectMapper objectMapper;
+	private final RefreshTokenStore refreshTokenStore;
 
 	public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtProvider jwtProvider,
-		ObjectMapper objectMapper) {
+		ObjectMapper objectMapper, RefreshTokenStore refreshTokenStore) {
 		this.authenticationManager = authenticationManager;
 		this.jwtProvider = jwtProvider;
 		this.objectMapper = objectMapper;
+		this.refreshTokenStore = refreshTokenStore;
 		setFilterProcessesUrl("/api/agent/login");
 	}
 
@@ -59,15 +64,28 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 		Authentication authResult) throws IOException, ServletException {
+		CustomUserDetails userDetails = (CustomUserDetails)authResult.getPrincipal();
 
-		CustomUserDetails customUserDetails = (CustomUserDetails)authResult;
+		Long id = userDetails.getId();
+		String username = userDetails.getUsername();
+		String role = userDetails.getAuthorities().stream()
+			.map(GrantedAuthority::getAuthority)
+			.collect(Collectors.joining(","));
 
-		String accessToken = jwtProvider.generateAccessToken(authResult);
-		String refreshToken = jwtProvider.generateRefreshToken(customUserDetails.getId());
+		String accessToken = jwtProvider.generateAccessToken(id, username, role);
+		String refreshToken = jwtProvider.generateRefreshToken(username);
+		Long expirationTime = jwtProvider.getExpirationTime(refreshToken);
+
+		refreshTokenStore.saveRefreshToken(username, refreshToken, expirationTime);
+		ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+			.httpOnly(true)
+			.secure(true)
+			.path("/")
+			.maxAge(86400)
+			.build();
 
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.addHeader("Authorization", "Bearer " + accessToken);
-
-		RefreshToken.putRefreshToken(customUserDetails.getId(), refreshToken);
+		response.addHeader("Set-Cookie", cookie.toString());
 	}
 }

@@ -6,7 +6,6 @@ import org.silsagusi.joonggaemoa.domain.agent.service.command.AgentCommand;
 import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
 import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
 import org.silsagusi.joonggaemoa.global.auth.jwt.JwtProvider;
-import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,7 +63,5 @@ public class AgentService {
 			throw new CustomException(ErrorCode.UNAUTHORIZED);
 		}
 		Claims claims = jwtProvider.getClaims(accessToken);
-
-		RefreshToken.removeRefreshToken(Long.valueOf(claims.getId()));
 	}
 }
