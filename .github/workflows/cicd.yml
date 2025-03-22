@@ -100,26 +100,72 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
+
+            # 초기 상태 설정
+            DEPLOY_STATUS="success"
+
+            # 컨테이너, 이미지 확인
+            echo "Docker Imformations:"
             sudo docker ps
-            # Stop and remove existing container if it exists
-            sudo docker stop $(sudo docker ps -q --filter ancestor=${{ secrets.DOCKER_USERNAME }}/docker-joonggaemoa) 2>/dev/null || true
-            sudo docker rm $(sudo docker ps -aq --filter ancestor=${{ secrets.DOCKER_USERNAME }}/docker-joonggaemoa) 2>/dev/null || true
+            sudo docker images
+
+            # 기존 컨테이너 ID 조회, 중지
+            OLD_CONTAINER_ID=$(sudo docker ps -q --filter name=joonggaemoa)
+            sudo docker stop $OLD_CONTAINER_ID 2>/dev/null || true
+            #sudo docker rm $OLD_CONTAINER_ID 2>/dev/null || true
             
-            # Pull and run new container
+            # 새로운 컨테이너 pull, run
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/docker-joonggaemoa
-            sudo docker run -d --name joonggaemoa -p 8080:8080 \
+            sudo docker run -d --name new-joonggaemoa -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=prod \
               ${{ secrets.DOCKER_USERNAME }}/docker-joonggaemoa
             
-            # Wait for container to start and check logs
+            # log 
             sleep 10
-            sudo docker logs joonggaemoa
+            sudo docker logs new-joonggaemoa
             
-            # Verify container is running
-            if ! sudo docker ps | grep -q joonggaemoa; then
-              echo "Container failed to start"
+            # 컨테이너 실행 확인
+            if ! sudo docker ps | grep -q new-joonggaemoa; then
+              echo "New Container failed to start"
+              sudo docker rm new-joonggaemoa 2>/dev/null || true
+
+              # 새로운 컨테이너 실행 실패 시, 기존 컨테이너 재시작
+              if [ -n "$OLD_CONTAINER_ID" ]; then
+                DEPLOY_STATUS="failed"
+                echo "Restarting old container: $OLD_CONTAINER_ID"
+                sudo docker start $OLD_CONTAINER_ID
+            
+                # 기존 컨테이너 재시작 확인
+                sleep 10
+                if sudo docker ps | grep -q "$OLD_CONTAINER_ID"; then
+                  echo "Rollback successful. Old container is running."
+                else
+                  echo "Rollback failed. Old container did not start properly."
+                  exit 1
+                fi
+              else
+                DEPLOY_STATUS="old_failed"
+                echo "No old container found. Rollback not possible."
+                exit 1
+              fi
+            else
+              # 컨테이너, 이미지 정리
+              sudo docker rm $OLD_CONTAINER_ID
+              sudo docker rename new-joonggaemoa joonggaemoa
+              sudo docker image prune -f
+            fi
+
+            echo "After Deploy:"
+            sudo docker ps
+            sudo docker images
+
+            echo "Deploy Status: $DEPLOY_STATUS"
+            if [ "$DEPLOY_STATUS" == "failed" ]; then
+              echo "New deploy failed. Please check the logs."
+              exit 1
+            elif [ "$DEPLOY_STATUS" == "old_failed" ]; then
+              echo "Rollback failed. Please check the logs."
               exit 1
             fi
             
-            # Clean up old images
-            sudo docker image prune -f
+            
