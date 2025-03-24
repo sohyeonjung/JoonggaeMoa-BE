@@ -70,7 +70,7 @@ public class CustomerService {
 			for (int sheetIndex = 0; sheetIndex < sheetsLength; sheetIndex++) {
 				XSSFSheet workSheet = workbook.getSheetAt(sheetIndex);
 
-				for (int i = 3; i < workSheet.getLastRowNum(); i++) {
+				for (int i = 1; i < workSheet.getLastRowNum(); i++) {
 					try {
 
 						Row row = workSheet.getRow(i);
@@ -84,7 +84,7 @@ public class CustomerService {
 							.job(row.getCell(4).getStringCellValue())
 							.isVip(row.getCell(5).getBooleanCellValue())
 							.memo(row.getCell(6).getStringCellValue())
-							.consent(row.getCell(5).getBooleanCellValue())
+							.consent(row.getCell(7).getBooleanCellValue())
 							.build();
 
 						Customer savedCustomer = customerRepository.save(customer);
