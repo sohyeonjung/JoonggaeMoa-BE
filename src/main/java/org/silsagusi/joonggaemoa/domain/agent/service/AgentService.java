@@ -3,6 +3,7 @@ package org.silsagusi.joonggaemoa.domain.agent.service;
 import org.silsagusi.joonggaemoa.domain.agent.entity.Agent;
 import org.silsagusi.joonggaemoa.domain.agent.repository.AgentRepository;
 import org.silsagusi.joonggaemoa.domain.agent.service.command.AgentCommand;
+import org.silsagusi.joonggaemoa.domain.message.service.MessageTemplateService;
 import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
 import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
 import org.silsagusi.joonggaemoa.global.auth.jwt.JwtProvider;
@@ -21,6 +22,7 @@ public class AgentService {
 	private final AgentRepository agentRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final RefreshTokenStore refreshTokenStore;
+	private final MessageTemplateService messageTemplateService;
 
 	public void signup(
 		String username,
@@ -46,6 +48,8 @@ public class AgentService {
 			.region(region)
 			.businessNo(businessNo)
 			.build();
+
+		messageTemplateService.createMessageTemplate(agent);
 
 		agentRepository.save(agent);
 	}

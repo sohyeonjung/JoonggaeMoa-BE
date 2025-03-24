@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @NoArgsConstructor
@@ -31,8 +32,20 @@ public class MessageTemplate {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Agent agent;
 
-	private String category;
+	private Category category;
 
+	@Setter
 	private String content;
 
+	public enum Category {
+		BIRTHDAY, EXPIRATION, WELCOME, BULK
+	}
+
+	public static MessageTemplate create(Agent agent, String category, String content) {
+		return MessageTemplate.builder()
+			.agent(agent)
+			.category(MessageTemplate.Category.valueOf(category))
+			.content(content)
+			.build();
+	}
 }
