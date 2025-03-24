@@ -24,7 +24,7 @@ public class CustomerCommand {
 	private String memo;
 	private Boolean consent;
 
-	public static CustomerCommand toCommand(Customer customer) {
+	public static CustomerCommand of(Customer customer) {
 		return CustomerCommand.builder()
 			.id(customer.getId())
 			.name(customer.getName())
