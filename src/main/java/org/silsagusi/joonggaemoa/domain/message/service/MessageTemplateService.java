@@ -2,6 +2,7 @@ package org.silsagusi.joonggaemoa.domain.message.service;
 
 import org.silsagusi.joonggaemoa.domain.agent.entity.Agent;
 import org.silsagusi.joonggaemoa.domain.agent.repository.AgentRepository;
+import org.silsagusi.joonggaemoa.domain.message.entity.Category;
 import org.silsagusi.joonggaemoa.domain.message.entity.MessageTemplate;
 import org.silsagusi.joonggaemoa.domain.message.repository.MessageTemplateRepository;
 import org.silsagusi.joonggaemoa.domain.message.service.command.MessageTemplateCommand;
@@ -20,9 +21,9 @@ public class MessageTemplateService {
 
 	public void createMessageTemplate(Agent agent) {
 
-		MessageTemplate messageTemplate1 = MessageTemplate.create(agent, "BIRTHDAY", "");
-		MessageTemplate messageTemplate2 = MessageTemplate.create(agent, "EXPIRATION", "");
-		MessageTemplate messageTemplate3 = MessageTemplate.create(agent, "WELCOME", "");
+		MessageTemplate messageTemplate1 = MessageTemplate.create(agent, Category.BIRTHDAY, "");
+		MessageTemplate messageTemplate2 = MessageTemplate.create(agent, Category.EXPIRATION, "");
+		MessageTemplate messageTemplate3 = MessageTemplate.create(agent, Category.WELCOME, "");
 
 		messageTemplateRepository.save(messageTemplate1);
 		messageTemplateRepository.save(messageTemplate2);
@@ -33,7 +34,8 @@ public class MessageTemplateService {
 		Agent agent = agentRepository.findById(agentId)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
-		MessageTemplate messageTemplate = messageTemplateRepository.findByAgentAndCategory(agent, category)
+		MessageTemplate messageTemplate = messageTemplateRepository.findByAgentAndCategory(agent,
+				Category.valueOf(category))
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
 		return MessageTemplateCommand.of(messageTemplate);
@@ -43,7 +45,8 @@ public class MessageTemplateService {
 		Agent agent = agentRepository.findById(agentId)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
-		MessageTemplate messageTemplate = messageTemplateRepository.findByAgentAndCategory(agent, category)
+		MessageTemplate messageTemplate = messageTemplateRepository.findByAgentAndCategory(agent,
+				Category.valueOf(category))
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
 		messageTemplate.setContent(content);
@@ -56,7 +59,8 @@ public class MessageTemplateService {
 		Agent agent = agentRepository.findById(agentId)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
-		MessageTemplate messageTemplate = messageTemplateRepository.findByAgentAndCategory(agent, category)
+		MessageTemplate messageTemplate = messageTemplateRepository.findByAgentAndCategory(agent,
+				Category.valueOf(category))
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
 		messageTemplate.setContent("");

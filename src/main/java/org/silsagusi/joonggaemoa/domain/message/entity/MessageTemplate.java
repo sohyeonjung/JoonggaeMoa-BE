@@ -4,6 +4,8 @@ import org.silsagusi.joonggaemoa.domain.agent.entity.Agent;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,19 +34,16 @@ public class MessageTemplate {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Agent agent;
 
+	@Enumerated(EnumType.STRING)
 	private Category category;
 
 	@Setter
 	private String content;
 
-	public enum Category {
-		BIRTHDAY, EXPIRATION, WELCOME, BULK
-	}
-
-	public static MessageTemplate create(Agent agent, String category, String content) {
+	public static MessageTemplate create(Agent agent, Category category, String content) {
 		return MessageTemplate.builder()
 			.agent(agent)
-			.category(MessageTemplate.Category.valueOf(category))
+			.category(category)
 			.content(content)
 			.build();
 	}

@@ -10,11 +10,13 @@ import org.silsagusi.joonggaemoa.global.auth.jwt.JwtProvider;
 import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshTokenStore;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AgentService {
 
