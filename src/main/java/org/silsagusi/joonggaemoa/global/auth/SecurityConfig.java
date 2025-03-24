@@ -3,17 +3,31 @@ package org.silsagusi.joonggaemoa.global.auth;
 import java.util.Arrays;
 import java.util.List;
 
+import org.silsagusi.joonggaemoa.global.auth.filter.JwtAuthenticationFilter;
+import org.silsagusi.joonggaemoa.global.auth.filter.JwtAuthorizationFilter;
+import org.silsagusi.joonggaemoa.global.auth.handler.CustomAccessDeniedHandler;
+import org.silsagusi.joonggaemoa.global.auth.handler.CustomAuthenticationEntryPointHandler;
+import org.silsagusi.joonggaemoa.global.auth.jwt.JwtProvider;
+import org.silsagusi.joonggaemoa.global.auth.jwt.RefreshTokenStore;
+import org.silsagusi.joonggaemoa.global.auth.userDetails.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +37,13 @@ import lombok.extern.slf4j.Slf4j;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+	private final CustomAuthenticationEntryPointHandler customAuthenticationEntryPointHandler;
+	private final CustomAccessDeniedHandler customAccessDeniedHandler;
+	private final JwtProvider jwtProvider;
+	private final ObjectMapper objectMapper;
+	private final CustomUserDetailsService customUserDetailsService;
+	private final RefreshTokenStore refreshTokenStore;
 
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
@@ -34,15 +55,32 @@ public class SecurityConfig {
 		httpSecurity
 			.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
+			// .logout(logout -> logout.logoutUrl("/api/agent/logout"))
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
 			.sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.addFilterBefore(
+				new JwtAuthenticationFilter(authenticationManager(customUserDetailsService), jwtProvider, objectMapper,
+					refreshTokenStore),
+				UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(new JwtAuthorizationFilter(jwtProvider, refreshTokenStore), JwtAuthenticationFilter.class)
 			.authorizeHttpRequests(auth -> auth
 				.anyRequest().permitAll()
+			)
+			.exceptionHandling(configurer -> configurer
+				.authenticationEntryPoint(customAuthenticationEntryPointHandler)
+				.accessDeniedHandler(customAccessDeniedHandler)
 			);
 
 		return httpSecurity.build();
+	}
 
+	@Bean
+	public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+		authenticationProvider.setUserDetailsService(userDetailsService);
+		authenticationProvider.setPasswordEncoder(passwordEncoder());
+		return new ProviderManager(authenticationProvider);
 	}
 
 	@Bean

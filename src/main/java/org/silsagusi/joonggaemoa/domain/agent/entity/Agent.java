@@ -24,12 +24,6 @@ public class Agent {
 	@Column(name = "agent_id")
 	private Long id;
 
-	private String office;
-
-	private String region;
-
-	private String businessNo;
-
 	private String name;
 
 	private String phone;
@@ -39,4 +33,16 @@ public class Agent {
 	private String username;
 
 	private String password;
+
+	private String office;
+
+	private String region;
+
+	private String businessNo;
+
+	private Role role;
+
+	enum Role {
+		ROLE_AGENT, ROLE_CUSTOMER
+	}
 }
