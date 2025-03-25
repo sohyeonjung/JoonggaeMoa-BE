@@ -1,20 +1,32 @@
 package org.silsagusi.joonggaemoa.domain.survey.service.command;
 
-import java.time.LocalDate;
 import java.util.List;
 
-import lombok.Builder;
+import org.silsagusi.joonggaemoa.domain.survey.entity.Survey;
 
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
 @Builder
 public class SurveyCommand {
-	private String name;
-	private LocalDate birthday;
-	private String phone;
-	private String email;
-	private String job;
-	private Boolean isVip;
-	private String memo;
-	private Boolean consent;
+	private Long id;
+	private Long agentId;
+	private String title;
+	private String description;
 	private List<QuestionCommand> questionList;
+
+	public static SurveyCommand of(Survey survey) {
+		List<QuestionCommand> questionCommandList = survey.getQuestionList()
+			.stream().map(it -> QuestionCommand.of(it)).toList();
+
+		return SurveyCommand.builder()
+			.id(survey.getId())
+			.agentId(survey.getAgent().getId())
+			.title(survey.getTitle())
+			.description(survey.getDescription())
+			.questionList(questionCommandList)
+			.build();
+	}
 
 }

@@ -2,6 +2,8 @@ package org.silsagusi.joonggaemoa.domain.survey.service.command;
 
 import java.util.List;
 
+import org.silsagusi.joonggaemoa.domain.survey.entity.Question;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,4 +16,15 @@ public class QuestionCommand {
 	private String type;
 	private Boolean isRequired;
 	private List<String> options;
+
+	public static QuestionCommand of(Question question) {
+		return QuestionCommand.builder()
+			.id(question.getId())
+			.surveyId(question.getSurvey().getId())
+			.content(question.getContent())
+			.type(question.getType())
+			.isRequired(question.getIsRequired())
+			.options(question.getOptions())
+			.build();
+	}
 }
