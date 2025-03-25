@@ -26,7 +26,7 @@ public class Agent {
 	@Column(name = "agent_id")
 	private Long id;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
 	private List<Customer> customers;
 
 	private String name;

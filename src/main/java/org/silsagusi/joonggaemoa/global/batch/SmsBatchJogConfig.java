@@ -9,6 +9,8 @@ import org.silsagusi.joonggaemoa.domain.message.repository.MessageRepository;
 import org.silsagusi.joonggaemoa.domain.message.repository.ReservedMessageRepository;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.JobScope;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -45,6 +47,7 @@ public class SmsBatchJogConfig {
 	}
 
 	@Bean
+	@JobScope
 	public Step createStep() {
 		return new StepBuilder(JOB_NAME + "Step1", jobRepository)
 			.<ReservedMessage, Message>chunk(CHUNK_SIZE, platformTransactionManager)
@@ -55,6 +58,7 @@ public class SmsBatchJogConfig {
 	}
 
 	@Bean
+	@StepScope
 	public RepositoryItemReader<ReservedMessage> reader() {
 		return new RepositoryItemReaderBuilder<ReservedMessage>()
 			.name("reservedMessageReader")
@@ -67,6 +71,7 @@ public class SmsBatchJogConfig {
 	}
 
 	@Bean
+	@StepScope
 	public ItemProcessor<ReservedMessage, Message> processor() {
 		return reservedMessage -> {
 			log.info("Processing reserved message: {}", reservedMessage);
@@ -90,6 +95,7 @@ public class SmsBatchJogConfig {
 	}
 
 	@Bean
+	@StepScope
 	public ItemWriter<Message> writer() {
 		return items -> {
 			try {

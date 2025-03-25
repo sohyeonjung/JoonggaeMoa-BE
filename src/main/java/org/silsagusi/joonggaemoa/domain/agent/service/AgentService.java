@@ -51,9 +51,9 @@ public class AgentService {
 			businessNo
 		);
 
-		messageTemplateService.createMessageTemplate(agent);
-
 		agentRepository.save(agent);
+
+		messageTemplateService.createMessageTemplate(agent);
 	}
 
 	public AgentCommand getAgentByNameAndPhone(String name, String phone) {
