@@ -54,14 +54,14 @@ public class AgentService {
 		Agent agent = agentRepository.findByNameAndPhone(name, phone)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
-		return AgentCommand.toCommand(agent);
+		return AgentCommand.of(agent);
 	}
 
 	public AgentCommand getAgentById(Long id) {
 		Agent agent = agentRepository.getAgentById(id)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
-		return AgentCommand.toCommand(agent);
+		return AgentCommand.of(agent);
 	}
 
 	public void logout(String accessToken) {

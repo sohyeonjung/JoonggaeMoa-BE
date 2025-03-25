@@ -24,7 +24,7 @@ public class AgentCommand {
 	private String businessNo;
 	private String role;
 
-	public static AgentCommand toCommand(Agent agent) {
+	public static AgentCommand of(Agent agent) {
 		return AgentCommand.builder()
 			.id(agent.getId())
 			.name(agent.getName())

@@ -24,7 +24,7 @@ public class AgentResponse {
 	private String businessNo;
 	private String role;
 
-	public static AgentResponse toDto(AgentCommand agentCommand) {
+	public static AgentResponse of(AgentCommand agentCommand) {
 		return AgentResponse.builder()
 			.id(agentCommand.getId())
 			.name(agentCommand.getName())
