@@ -1,12 +1,17 @@
 package org.silsagusi.joonggaemoa.domain.customer.controller;
 
+import java.util.List;
+
 import org.silsagusi.joonggaemoa.domain.customer.controller.dto.CreateCustomerRequest;
+import org.silsagusi.joonggaemoa.domain.customer.controller.dto.CustomerResponse;
 import org.silsagusi.joonggaemoa.domain.customer.controller.dto.UpdateCustomerRequest;
 import org.silsagusi.joonggaemoa.domain.customer.service.CustomerService;
+import org.silsagusi.joonggaemoa.domain.customer.service.command.CustomerCommand;
 import org.silsagusi.joonggaemoa.global.api.ApiResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,6 +84,44 @@ public class CustomerController {
 			updateCustomerRequest.getConsent()
 		);
 		return ResponseEntity.ok(ApiResponse.ok());
+	}
+
+	@GetMapping("/{agentId}/customers")
+	public ResponseEntity<ApiResponse<List<CustomerResponse>>> getAllCustomers() {
+		List<CustomerCommand> customerCommandList = customerService.getAllCustomers();
+		List<CustomerResponse> customerResponseList = customerCommandList.stream()
+			.map(it -> new CustomerResponse(
+				it.getName(),
+				it.getBirthday(),
+				it.getPhone(),
+				it.getEmail(),
+				it.getJob(),
+				it.getIsVip(),
+				it.getMemo(),
+				it.getConsent()
+			)).toList();
+
+		return ResponseEntity.ok(ApiResponse.ok(customerResponseList));
+	}
+
+	@GetMapping("/{agentId}/customers/{customerId}")
+	public ResponseEntity<ApiResponse<CustomerResponse>> getCustomer(
+		@PathVariable("customerId") Long customerId
+	) {
+		CustomerCommand customerCommand = customerService.getCustomerById(customerId);
+
+		return ResponseEntity.ok(ApiResponse.ok(
+			new CustomerResponse(
+				customerCommand.getName(),
+				customerCommand.getBirthday(),
+				customerCommand.getPhone(),
+				customerCommand.getEmail(),
+				customerCommand.getJob(),
+				customerCommand.getIsVip(),
+				customerCommand.getMemo(),
+				customerCommand.getConsent()
+			)
+		));
 	}
 
 }

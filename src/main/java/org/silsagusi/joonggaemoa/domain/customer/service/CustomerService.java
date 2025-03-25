@@ -1,6 +1,7 @@
 package org.silsagusi.joonggaemoa.domain.customer.service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -9,6 +10,7 @@ import org.silsagusi.joonggaemoa.domain.agent.entity.Agent;
 import org.silsagusi.joonggaemoa.domain.agent.repository.AgentRepository;
 import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
 import org.silsagusi.joonggaemoa.domain.customer.repository.CustomerRepository;
+import org.silsagusi.joonggaemoa.domain.customer.service.command.CustomerCommand;
 import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
 import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
 import org.springframework.stereotype.Service;
@@ -122,5 +124,17 @@ public class CustomerService {
 			(consent == null) ? customer.getConsent() : consent
 		);
 		customerRepository.save(customer);
+	}
+
+	public CustomerCommand getCustomerById(Long customerId) {
+		Customer customer = customerRepository.getById(customerId);
+		return CustomerCommand.of(customer);
+	}
+
+	public List<CustomerCommand> getAllCustomers() {
+		List<Customer> customerList = customerRepository.findAll();
+		List<CustomerCommand> customerCommandList = customerList.stream()
+			.map(it -> CustomerCommand.of(it)).toList();
+		return customerCommandList;
 	}
 }
