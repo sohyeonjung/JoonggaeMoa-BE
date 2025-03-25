@@ -40,16 +40,16 @@ public class AgentService {
 			throw new CustomException(ErrorCode.USERNAME_CONFLICT);
 		}
 
-		Agent agent = Agent.builder()
-			.username(username)
-			.password(bCryptPasswordEncoder.encode(password))
-			.name(name)
-			.phone(phone)
-			.email(email)
-			.office(office)
-			.region(region)
-			.businessNo(businessNo)
-			.build();
+		Agent agent = new Agent(
+			username,
+			bCryptPasswordEncoder.encode(password),
+			name,
+			phone,
+			email,
+			office,
+			region,
+			businessNo
+		);
 
 		messageTemplateService.createMessageTemplate(agent);
 
@@ -60,14 +60,14 @@ public class AgentService {
 		Agent agent = agentRepository.findByNameAndPhone(name, phone)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
-		return AgentCommand.toCommand(agent);
+		return AgentCommand.of(agent);
 	}
 
 	public AgentCommand getAgentById(Long id) {
 		Agent agent = agentRepository.getAgentById(id)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
-		return AgentCommand.toCommand(agent);
+		return AgentCommand.of(agent);
 	}
 
 	public void logout(String accessToken) {
