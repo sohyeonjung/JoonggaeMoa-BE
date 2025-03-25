@@ -1,7 +1,7 @@
 package org.silsagusi.joonggaemoa.domain.message.controller;
 
-import org.silsagusi.joonggaemoa.domain.message.controller.dto.MessageTemplateRequestDto;
-import org.silsagusi.joonggaemoa.domain.message.controller.dto.MessageTemplateResponseDto;
+import org.silsagusi.joonggaemoa.domain.message.controller.dto.MessageTemplateRequest;
+import org.silsagusi.joonggaemoa.domain.message.controller.dto.MessageTemplateResponse;
 import org.silsagusi.joonggaemoa.domain.message.service.MessageTemplateService;
 import org.silsagusi.joonggaemoa.domain.message.service.command.MessageTemplateCommand;
 import org.silsagusi.joonggaemoa.global.api.ApiResponse;
@@ -23,26 +23,26 @@ public class MessageTemplateController {
 	private final MessageTemplateService messageTemplateService;
 
 	@GetMapping("/api/agent/{agentId}/message/template")
-	public ResponseEntity<ApiResponse<MessageTemplateResponseDto>> getMessageTemplate(
+	public ResponseEntity<ApiResponse<MessageTemplateResponse>> getMessageTemplate(
 		@PathVariable Long agentId,
 		@RequestParam String category
 	) {
 		MessageTemplateCommand command = messageTemplateService.getMessageTemplate(agentId, category);
 
-		MessageTemplateResponseDto responseDto = MessageTemplateResponseDto.of(command);
+		MessageTemplateResponse responseDto = MessageTemplateResponse.of(command);
 
 		return ResponseEntity.ok(ApiResponse.ok(responseDto));
 	}
 
 	@PatchMapping("/api/agent/{agentId}/message/template")
-	public ResponseEntity<ApiResponse<MessageTemplateResponseDto>> updateMessageTemplate(
+	public ResponseEntity<ApiResponse<MessageTemplateResponse>> updateMessageTemplate(
 		@PathVariable Long agentId,
-		@RequestBody MessageTemplateRequestDto requestDto
+		@RequestBody MessageTemplateRequest requestDto
 	) {
 		MessageTemplateCommand command = messageTemplateService.updateMessageTemplate(agentId,
 			requestDto.getCategory(), requestDto.getContent());
 
-		MessageTemplateResponseDto responseDto = MessageTemplateResponseDto.of(command);
+		MessageTemplateResponse responseDto = MessageTemplateResponse.of(command);
 
 		return ResponseEntity.ok(ApiResponse.ok(responseDto));
 	}

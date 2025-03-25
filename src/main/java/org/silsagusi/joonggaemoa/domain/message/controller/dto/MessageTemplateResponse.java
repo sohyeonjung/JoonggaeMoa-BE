@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MessageTemplateResponseDto {
+public class MessageTemplateResponse {
 
 	private String category;
 	private String content;
 
-	public static MessageTemplateResponseDto of(MessageTemplateCommand messageTemplateCommand) {
-		return MessageTemplateResponseDto.builder()
+	public static MessageTemplateResponse of(MessageTemplateCommand messageTemplateCommand) {
+		return MessageTemplateResponse.builder()
 			.category(messageTemplateCommand.getCategory())
 			.content(messageTemplateCommand.getContent())
 			.build();
