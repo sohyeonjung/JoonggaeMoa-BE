@@ -6,14 +6,15 @@ import org.silsagusi.joonggaemoa.domain.customer.service.command.CustomerCommand
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CustomerResponse {
+	private Long id;
 	private String name;
 	private LocalDate birthday;
 	private String phone;
@@ -25,6 +26,7 @@ public class CustomerResponse {
 
 	public static CustomerResponse of(CustomerCommand customerCommand) {
 		return CustomerResponse.builder()
+			.id(customerCommand.getId())
 			.name(customerCommand.getName())
 			.birthday(customerCommand.getBirthday())
 			.phone(customerCommand.getPhone())
