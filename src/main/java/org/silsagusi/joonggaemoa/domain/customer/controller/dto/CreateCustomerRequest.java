@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateCustomerRequestDto {
+public class CreateCustomerRequest {
 	private String name;
 	private LocalDate birthday;
 	private String phone;

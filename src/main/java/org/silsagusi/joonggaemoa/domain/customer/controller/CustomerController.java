@@ -1,6 +1,6 @@
 package org.silsagusi.joonggaemoa.domain.customer.controller;
 
-import org.silsagusi.joonggaemoa.domain.customer.controller.dto.CreateCustomerRequestDto;
+import org.silsagusi.joonggaemoa.domain.customer.controller.dto.CreateCustomerRequest;
 import org.silsagusi.joonggaemoa.domain.customer.controller.dto.UpdateCustomerRequest;
 import org.silsagusi.joonggaemoa.domain.customer.service.CustomerService;
 import org.silsagusi.joonggaemoa.global.api.ApiResponse;
@@ -26,7 +26,7 @@ public class CustomerController {
 	@PostMapping("/{agentId}/customers")
 	public ResponseEntity<ApiResponse> createCustomer(
 		@PathVariable("agentId") Long agentId,
-		@RequestBody CreateCustomerRequestDto createCustomerRequestDto
+		@RequestBody CreateCustomerRequest createCustomerRequestDto
 	) {
 		customerService.createCustomer(
 			agentId,
