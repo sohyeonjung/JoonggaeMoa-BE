@@ -1,4 +1,4 @@
-package org.silsagusi.joonggaemoa.domain.customer.service;
+package org.silsagusi.joonggaemoa.domain.customer.service.command;
 
 import java.time.LocalDate;
 
@@ -6,10 +6,10 @@ import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

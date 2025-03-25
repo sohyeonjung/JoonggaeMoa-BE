@@ -36,16 +36,16 @@ public class AgentService {
 			throw new CustomException(ErrorCode.USERNAME_CONFLICT);
 		}
 
-		Agent agent = Agent.builder()
-			.username(username)
-			.password(bCryptPasswordEncoder.encode(password))
-			.name(name)
-			.phone(phone)
-			.email(email)
-			.office(office)
-			.region(region)
-			.businessNo(businessNo)
-			.build();
+		Agent agent = new Agent(
+			username,
+			bCryptPasswordEncoder.encode(password),
+			name,
+			phone,
+			email,
+			office,
+			region,
+			businessNo
+		);
 
 		agentRepository.save(agent);
 	}
