@@ -1,5 +1,7 @@
 package org.silsagusi.joonggaemoa.domain.survey.entity;
 
+import java.util.List;
+
 import org.silsagusi.joonggaemoa.domain.agent.entity.Agent;
 import org.silsagusi.joonggaemoa.global.BaseEntity;
 
@@ -11,9 +13,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@NoArgsConstructor
 @ToString
 @Entity(name = "surveys")
 @Getter
@@ -31,4 +36,17 @@ public class Survey extends BaseEntity {
 	private String title;
 
 	private String description;
+
+	@OneToMany(mappedBy = "survey", fetch = FetchType.LAZY)
+	private List<Question> questionList = List.of();
+
+	// createdAt - baseEntity에서
+
+	public Survey(Agent agent, String title, String description, List<Question> questionList) {
+		this.agent = agent;
+		this.title = title;
+		this.description = description;
+		this.questionList = questionList;
+	}
+
 }

@@ -1,6 +1,8 @@
 package org.silsagusi.joonggaemoa.domain.survey.entity;
 
-import java.util.Set;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -13,9 +15,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
+@NoArgsConstructor
 @Entity(name = "questions")
 @Getter
 public class Question {
@@ -25,7 +29,10 @@ public class Question {
 	@Column(name = "question_id")
 	private Long id;
 
+	@JsonIgnore
+	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "survey_id", referencedColumnName = "survey_id")
 	private Survey survey;
 
 	private String content;
@@ -36,5 +43,14 @@ public class Question {
 
 	@ElementCollection
 	@CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "question_id"))
-	private Set<String> options;
+	private List<String> options;
+
+	public Question(Survey survey, String content, String type, Boolean isRequired, List<String> options) {
+		this.survey = survey;
+		this.content = content;
+		this.type = type;
+		this.isRequired = isRequired;
+		this.options = options;
+	}
+
 }
