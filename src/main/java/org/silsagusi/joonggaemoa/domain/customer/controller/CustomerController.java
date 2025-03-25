@@ -90,16 +90,7 @@ public class CustomerController {
 	public ResponseEntity<ApiResponse<List<CustomerResponse>>> getAllCustomers() {
 		List<CustomerCommand> customerCommandList = customerService.getAllCustomers();
 		List<CustomerResponse> customerResponseList = customerCommandList.stream()
-			.map(it -> new CustomerResponse(
-				it.getName(),
-				it.getBirthday(),
-				it.getPhone(),
-				it.getEmail(),
-				it.getJob(),
-				it.getIsVip(),
-				it.getMemo(),
-				it.getConsent()
-			)).toList();
+			.map(it -> CustomerResponse.of(it)).toList();
 
 		return ResponseEntity.ok(ApiResponse.ok(customerResponseList));
 	}
@@ -109,19 +100,8 @@ public class CustomerController {
 		@PathVariable("customerId") Long customerId
 	) {
 		CustomerCommand customerCommand = customerService.getCustomerById(customerId);
-
-		return ResponseEntity.ok(ApiResponse.ok(
-			new CustomerResponse(
-				customerCommand.getName(),
-				customerCommand.getBirthday(),
-				customerCommand.getPhone(),
-				customerCommand.getEmail(),
-				customerCommand.getJob(),
-				customerCommand.getIsVip(),
-				customerCommand.getMemo(),
-				customerCommand.getConsent()
-			)
-		));
+		
+		return ResponseEntity.ok(ApiResponse.ok(CustomerResponse.of(customerCommand)));
 	}
 
 }
