@@ -44,7 +44,6 @@ public class Agent {
 
 	public Agent(String name, String phone, String email, String username, String password, String office,
 		String region, String businessNo) {
-		this.id = id;
 		this.name = name;
 		this.phone = phone;
 		this.email = email;
