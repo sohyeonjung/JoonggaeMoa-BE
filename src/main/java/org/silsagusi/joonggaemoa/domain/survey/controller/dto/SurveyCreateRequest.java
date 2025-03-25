@@ -5,8 +5,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class SurveyRequest {
-	private Long id;
+public class SurveyCreateRequest {
 	private String title;
 	private String description;
 	private List<QuestionRequest> questionList;

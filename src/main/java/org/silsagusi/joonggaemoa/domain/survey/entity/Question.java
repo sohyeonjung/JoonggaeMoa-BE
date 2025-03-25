@@ -53,4 +53,16 @@ public class Question {
 		this.options = options;
 	}
 
+	public void updateQuestion(
+		String content,
+		String type,
+		Boolean isRequired,
+		List<String> options
+	) {
+		this.content = content;
+		this.type = type;
+		this.isRequired = isRequired;
+		this.options = options;
+	}
+
 }

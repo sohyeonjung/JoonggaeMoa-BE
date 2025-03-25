@@ -13,6 +13,7 @@ import org.silsagusi.joonggaemoa.domain.survey.service.command.QuestionCommand;
 import org.silsagusi.joonggaemoa.domain.survey.service.command.SurveyCommand;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -53,6 +54,70 @@ public class SurveyService {
 
 	}
 
+	@Transactional
+	public void deleteSurvey(Long surveyId) {
+		questionRepository.deleteBySurvey_Id(surveyId);
+		surveyRepository.deleteById(surveyId);
+	}
+
+	public void updateSurvey(
+		Long surveyId,
+		String title,
+		String description,
+		List<QuestionCommand> questionCommandList
+	) {
+		Survey survey = surveyRepository.getById(surveyId);
+		survey.updateSurveyTitleDescription(
+			(title == null || title.isBlank()) ? survey.getTitle() : title,
+			(description == null || description.isBlank()) ? survey.getDescription() : description
+		);
+
+		List<Question> questionList = survey.getQuestionList();
+		List<Question> questionsToRemove = new ArrayList<>();
+		//바뀐 질문, 새로운 질문
+		for (QuestionCommand command : questionCommandList) {
+			boolean found = false;
+			for (Question question : questionList) {
+				if (question.getId().equals(command.getId())) {
+					question.updateQuestion(
+						command.getContent(),
+						command.getType(),
+						command.getIsRequired(),
+						command.getOptions()
+					);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				Question question = new Question(
+					survey,
+					command.getContent(),
+					command.getType(),
+					command.getIsRequired(),
+					command.getOptions()
+				);
+				survey.getQuestionList().add(question);
+			}
+		}
+		//삭제 된 질문
+		for (Question question : questionList) {
+			boolean found = false;
+			for (QuestionCommand command : questionCommandList) {
+				if (question.getId().equals(command.getId())) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				questionsToRemove.add(question);
+		}
+		questionList.removeAll(questionsToRemove);
+		questionRepository.deleteAll(questionsToRemove);
+		
+		surveyRepository.save(survey);
+	}
+
 	public List<SurveyCommand> getAllSurveys() {
 		List<Survey> surveyList = surveyRepository.findAll();
 		return surveyList.stream().map(it -> SurveyCommand.of(it)).toList();
@@ -62,4 +127,5 @@ public class SurveyService {
 		Survey survey = surveyRepository.getOne(surveyId);
 		return SurveyCommand.of(survey);
 	}
+
 }

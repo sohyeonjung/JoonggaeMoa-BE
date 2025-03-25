@@ -49,4 +49,12 @@ public class Survey extends BaseEntity {
 		this.questionList = questionList;
 	}
 
+	public void updateSurveyTitleDescription(
+		String title,
+		String description
+	) {
+		this.title = title;
+		this.description = description;
+	}
+
 }

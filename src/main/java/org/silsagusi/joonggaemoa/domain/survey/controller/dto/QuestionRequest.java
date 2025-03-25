@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class QuestionRequest {
+	private Long id;
 	private Long surveyId;
 	private String content;
 	private String type;
