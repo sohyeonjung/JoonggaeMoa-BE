@@ -107,6 +107,29 @@ public class CustomerService {
 		} catch (Exception e) {
 			throw new CustomException(ErrorCode.FILE_NOT_FOUND);
 		}
+	}
 
+	public void deleteCustomer(Long customerId) {
+		customerRepository.deleteById(customerId);
+	}
+
+	public void updateCustomer(
+		Long customerId,
+		String name,
+		LocalDate birthday,
+		String phone,
+		String email,
+		String job,
+		Boolean isVip,
+		String memo,
+		Boolean consent
+	) {
+		Customer customer = customerRepository.getById(customerId);
+		// customer.updateCustomer(
+		// 	(name == null || name.isBlank()) ? customer.getName() : name,
+		// 	(birthday)
+		// );
+
+		customerRepository.save(customer);
 	}
 }
