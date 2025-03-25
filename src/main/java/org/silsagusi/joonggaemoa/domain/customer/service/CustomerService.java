@@ -111,11 +111,16 @@ public class CustomerService {
 		Boolean consent
 	) {
 		Customer customer = customerRepository.getById(customerId);
-		// customer.updateCustomer(
-		// 	(name == null || name.isBlank()) ? customer.getName() : name,
-		// 	(birthday)
-		// );
-
+		customer.updateCustomer(
+			(name == null || name.isBlank()) ? customer.getName() : name,
+			(birthday == null) ? customer.getBirthday() : birthday,
+			(phone == null || phone.isBlank()) ? customer.getPhone() : phone,
+			(email == null || email.isBlank()) ? customer.getEmail() : email,
+			(job == null || job.isBlank()) ? customer.getJob() : job,
+			(isVip == null) ? customer.getIsVip() : isVip,
+			(memo == null || memo.isBlank()) ? customer.getMemo() : memo,
+			(consent == null) ? customer.getConsent() : consent
+		);
 		customerRepository.save(customer);
 	}
 }
