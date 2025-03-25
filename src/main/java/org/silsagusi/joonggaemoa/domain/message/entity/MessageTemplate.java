@@ -36,11 +36,13 @@ public class MessageTemplate {
 	@Setter
 	private String content;
 
+	public MessageTemplate(Agent agent, Category category, String content) {
+		this.agent = agent;
+		this.category = category;
+		this.content = content;
+	}
+
 	public static MessageTemplate create(Agent agent, Category category, String content) {
-		return MessageTemplate.builder()
-			.agent(agent)
-			.category(category)
-			.content(content)
-			.build();
+		return new MessageTemplate(agent, category, content);
 	}
 }

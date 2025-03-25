@@ -1,40 +1,33 @@
-package org.silsagusi.joonggaemoa.domain.message.service;
+package org.silsagusi.joonggaemoa.global.config;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.silsagusi.joonggaemoa.domain.message.repository.MessageRepository;
 import org.silsagusi.joonggaemoa.domain.message.repository.ReservedMessageRepository;
-import org.silsagusi.joonggaemoa.domain.message.service.command.MessageCommand;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-@Service
+@Slf4j
+@Configuration
 @RequiredArgsConstructor
-public class MessageService {
-
-	private final MessageRepository messageRepository;
-	private final ReservedMessageRepository reservedMessageRepository;
+public class ScheduleConfig {
 
 	private final JobLauncher jobLauncher;
 	private final JobRegistry jobRegistry;
 
-	public Page<MessageCommand> getMessage(Long agentId, Long lastMessageId) {
-		Pageable pageable = PageRequest.of(0, 10, Sort.by("agentId").descending());
+	private final ReservedMessageRepository reservedMessageRepository;
 
-		return null;
-	}
+	@Scheduled(cron = "0 0/1 * * * *", zone = "Asia/Seoul")
+	public void sendMessages() throws Exception {
+		log.info("Sending messages schedule start");
 
-	public void testMessage() throws Exception {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String date = dateFormat.format(new Date());
 
@@ -44,5 +37,4 @@ public class MessageService {
 
 		jobLauncher.run(jobRegistry.getJob("smsJob1"), jobParameters);
 	}
-
 }

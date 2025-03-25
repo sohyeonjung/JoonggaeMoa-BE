@@ -1,7 +1,5 @@
 package org.silsagusi.joonggaemoa.domain.message.service.command;
 
-import java.time.LocalDate;
-
 import org.silsagusi.joonggaemoa.domain.message.entity.Message;
 
 import lombok.AllArgsConstructor;
@@ -19,7 +17,7 @@ public class MessageCommand {
 	private Long customerId;
 	private String customerName;
 	private String content;
-	private LocalDate sendAt;
+	private String createdAt;
 	private String sendStatus;
 
 	public static MessageCommand of(Message message) {
@@ -28,7 +26,7 @@ public class MessageCommand {
 			.customerId(message.getCustomer().getId())
 			.customerName(message.getCustomer().getName())
 			.content(message.getContent())
-			.sendAt(message.getSendAt())
+			.createdAt(message.getCreatedAt())
 			.sendStatus(String.valueOf(message.getSendStatus()))
 			.build();
 	}
