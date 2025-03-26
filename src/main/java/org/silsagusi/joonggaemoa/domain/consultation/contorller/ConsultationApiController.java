@@ -1,12 +1,16 @@
 package org.silsagusi.joonggaemoa.domain.consultation.contorller;
 
 import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.CreateConsultationRequest;
+import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.UpdateConsultationRequest;
+import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
 import org.silsagusi.joonggaemoa.domain.consultation.service.ConsultationService;
 import org.silsagusi.joonggaemoa.global.api.ApiResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -17,17 +21,6 @@ public class ConsultationApiController {
 
 	private final ConsultationService consultationService;
 
-	/*
-	//상담 예약
-	@PostMapping("")
-	public ResponseEntity<ApiResponse<ConsultationResponseDto>> createConsultation(
-		@PathVariable Long agentId,
-		@RequestBody ConsultationRequestDto consultationRequestDto
-	) {
-		ConsultationResponseDto responseDto = consultationService.createConsultation(agentId,
-			consultationRequestDto);
-		return ResponseEntity.ok(ApiResponse.created(responseDto));
-	}*/
 	@PostMapping("/api/agents/{agentId}/consultations")
 	public ResponseEntity<ApiResponse<Void>> createConsultation(
 		@PathVariable("agentId") String agentId,
@@ -57,15 +50,32 @@ public class ConsultationApiController {
 	//상담 상세 조회
 	//	@GetMapping("")
 
-	//상담 상세 작성
-	//	@PatchMapping("{consultationId}")
+	@PatchMapping("/api/agents/{agentId}/consultations/{consultationId}")
+	public ResponseEntity<ApiResponse<Void>> updateConsultation(
+		@PathVariable("consultationId") Long consultationId,
+		@RequestBody UpdateConsultationRequest updateConsultationRequest
+	) {
+		consultationService.updateConsultation(
+			consultationId,
+			updateConsultationRequest.getDate(),
+			updateConsultationRequest.getPurpose(),
+			updateConsultationRequest.getInterestProperty(),
+			updateConsultationRequest.getInterestLocation(),
+			updateConsultationRequest.getContractType(),
+			updateConsultationRequest.getAssetStatus(),
+			updateConsultationRequest.getMemo(),
+			updateConsultationRequest.getConsultationStatus()
+		);
+		return ResponseEntity.ok(ApiResponse.ok());
+	}
 
-	//상담 상세 수정
-	//	@PatchMapping("{consultationId}")
+	@PatchMapping("/api/agents/{agentId}/consultations/{consultationId}/status")
+	public ResponseEntity<ApiResponse<Void>> updateConsultationStatus(
+		@PathVariable("consultationId") Long consultationId,
+		@RequestParam Consultation.ConsultationStatus consultationStatus
+	) {
+		consultationService.updateConsultationStatus(consultationId, consultationStatus);
+		return ResponseEntity.ok(ApiResponse.ok());
+	}
 
-	//상담 삭제
-	//	@DeleteMapping("{consultationId}")
-
-	//상담 상태 변경
-	//	@PatchMapping("{consultationId}")
 }

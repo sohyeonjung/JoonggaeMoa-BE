@@ -38,7 +38,7 @@ public class Consultation {
 
 	private String purpose;
 
-	private Integer interestProperty;
+	private String interestProperty;
 
 	private String interestLocation;
 
@@ -58,9 +58,16 @@ public class Consultation {
 		COMPLETED    // 진행 완료
 	}
 
-	public Consultation(Customer customer, LocalDateTime date, String purpose, Integer interestProperty,
-		String interestLocation, String contractType, String assetStatus, String memo,
-		ConsultationStatus consultationStatus) {
+	public Consultation(Customer customer,
+		LocalDateTime date,
+		String purpose,
+		String interestProperty,
+		String interestLocation,
+		String contractType,
+		String assetStatus,
+		String memo,
+		ConsultationStatus consultationStatus
+	) {
 		this.customer = customer;
 		this.date = date;
 		this.purpose = purpose;
@@ -71,4 +78,29 @@ public class Consultation {
 		this.memo = memo;
 		this.consultationStatus = consultationStatus;
 	}
+
+	public void updateStatus(ConsultationStatus consultationStatus) {
+		this.consultationStatus = consultationStatus;
+	}
+
+	public void updateConsultation(
+		LocalDateTime date,
+		String purpose,
+		String interestProperty,
+		String interestLocation,
+		String contractType,
+		String assetStatus,
+		String memo,
+		ConsultationStatus consultationStatus
+	) {
+		this.date = date;
+		this.purpose = purpose;
+		this.interestProperty = interestProperty;
+		this.interestLocation = interestLocation;
+		this.contractType = contractType;
+		this.assetStatus = assetStatus;
+		this.memo = memo;
+		this.consultationStatus = consultationStatus;
+	}
+
 }

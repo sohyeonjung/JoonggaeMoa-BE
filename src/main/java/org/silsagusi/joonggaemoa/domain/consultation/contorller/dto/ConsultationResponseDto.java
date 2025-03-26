@@ -2,6 +2,8 @@ package org.silsagusi.joonggaemoa.domain.consultation.contorller.dto;
 
 import java.time.LocalDateTime;
 
+import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
@@ -24,7 +26,7 @@ public class ConsultationResponseDto {
 
 	private String purpose;
 
-	private Integer interestProperty;
+	private String interestProperty;
 
 	private String interestLocation;
 
@@ -34,5 +36,5 @@ public class ConsultationResponseDto {
 
 	private String memo;
 
-	private String consultationStatus;
+	private Consultation.ConsultationStatus consultationStatus;
 }

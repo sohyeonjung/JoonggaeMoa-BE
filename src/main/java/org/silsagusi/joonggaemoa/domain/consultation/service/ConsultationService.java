@@ -21,7 +21,7 @@ public class ConsultationService {
 		Long customerId,
 		LocalDateTime date,
 		String purpose,
-		Integer interestProperty,
+		String interestProperty,
 		String interestLocation,
 		String contractType,
 		String assetStatus,
@@ -44,29 +44,37 @@ public class ConsultationService {
 
 	}
 
-	/*
-	@Transactional
-	public ConsultationResponseDto createConsultation(Long agentId, ConsultationRequestDto dto) {
-		// 중개인 고객 정보 조회
-		AgentCustomer agentCustomer = agentCustomerRepository.findByAgentIdAndCustomerId(agentId, dto.getCustomerId())
-			.orElseThrow(() -> new IllegalArgumentException("해당 중개인-고객 정보가 없습니다."));
+	public void updateConsultationStatus(Long consultationId, Consultation.ConsultationStatus consultationStatus) {
+		Consultation consultation = consultationRepository.getById(consultationId);
+		consultation.updateStatus(consultationStatus);
+		consultationRepository.save(consultation);
+	}
 
-		// 엔티티 변환 및 저장
-		Consultation consultation = Consultation.builder()
-			.agentCustomer(agentCustomer)
-			.date(dto.getDate())
-			.consultationStatus(ConsultationStatus.WAITING)
-			.build();
+	public void updateConsultation(
+		Long consultationId,
+		LocalDateTime date,
+		String purpose,
+		String interestProperty,
+		String interestLocation,
+		String contractType,
+		String assetStatus,
+		String memo,
+		Consultation.ConsultationStatus consultationStatus
+	) {
+		Consultation consultation = consultationRepository.getById(consultationId);
+		consultation.updateConsultation(
+			(date == null) ? consultation.getDate() : date,
+			(purpose == null || purpose.isBlank()) ? consultation.getPurpose() : purpose,
+			(interestProperty == null || interestProperty.isBlank()) ? consultation.getInterestProperty() :
+				interestProperty,
+			(interestLocation == null || interestLocation.isBlank()) ? consultation.getInterestLocation() :
+				interestLocation,
+			(contractType == null || contractType.isBlank()) ? consultation.getContractType() : contractType,
+			(assetStatus == null || assetStatus.isBlank()) ? consultation.getAssetStatus() : assetStatus,
+			(memo == null || memo.isBlank()) ? consultation.getMemo() : memo,
+			(consultationStatus == null) ? consultation.getConsultationStatus() : consultationStatus
 
-		Consultation savedConsultation = consultationRepository.save(consultation);
-
-		// DTO 변환 후 반환
-		return ConsultationResponseDto.builder()
-			.consultationId(savedConsultation.getId())
-			.customerId(savedConsultation.getAgentCustomer().getCustomer().getId())
-			.date(savedConsultation.getDate())
-			.consultationStatus(savedConsultation.getConsultationStatus().name())
-			.build();
-	}*/
-
+		);
+		consultationRepository.save(consultation);
+	}
 }
