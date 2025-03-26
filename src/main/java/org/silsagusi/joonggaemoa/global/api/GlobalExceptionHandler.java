@@ -1,13 +1,12 @@
 package org.silsagusi.joonggaemoa.global.api;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
 import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 //@RestControllerAdvice

@@ -1,13 +1,10 @@
 spring:
-  config:
-    import: application-secret.yml
+  profiles:
+    active: local
   web:
     resources:
       add-mappings: false # Disable static resource mapping (For NoHandlerFoundException)
   datasource:
-    url: jdbc:mysql://localhost:3306/joonggae?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: ${spring.datasource.username}
-    password: ${spring.datasource.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -22,7 +19,25 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+
 logging:
   level:
     org.hibernate.sql: debug
 
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: application-prod.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: application-local.yml
