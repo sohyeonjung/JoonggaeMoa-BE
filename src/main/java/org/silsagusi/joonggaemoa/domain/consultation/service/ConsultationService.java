@@ -1,6 +1,11 @@
 package org.silsagusi.joonggaemoa.domain.consultation.service;
 
+import java.time.LocalDateTime;
+
+import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
 import org.silsagusi.joonggaemoa.domain.consultation.repository.ConsultationRepository;
+import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
+import org.silsagusi.joonggaemoa.domain.customer.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -10,6 +15,34 @@ import lombok.RequiredArgsConstructor;
 public class ConsultationService {
 
 	private final ConsultationRepository consultationRepository;
+	private final CustomerRepository customerRepository;
+
+	public void createConsultation(
+		Long customerId,
+		LocalDateTime date,
+		String purpose,
+		Integer interestProperty,
+		String interestLocation,
+		String contractType,
+		String assetStatus,
+		String memo,
+		Consultation.ConsultationStatus consultationStatus
+	) {
+		Customer customer = customerRepository.getById(customerId);
+		Consultation consultation = new Consultation(
+			customer,
+			date,
+			purpose,
+			interestProperty,
+			interestLocation,
+			contractType,
+			assetStatus,
+			memo,
+			consultationStatus
+		);
+		consultationRepository.save(consultation);
+
+	}
 
 	/*
 	@Transactional
@@ -35,4 +68,5 @@ public class ConsultationService {
 			.consultationStatus(savedConsultation.getConsultationStatus().name())
 			.build();
 	}*/
+
 }

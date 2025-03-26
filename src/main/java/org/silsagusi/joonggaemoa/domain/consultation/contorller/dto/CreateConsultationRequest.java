@@ -2,22 +2,24 @@ package org.silsagusi.joonggaemoa.domain.consultation.contorller.dto;
 
 import java.time.LocalDateTime;
 
+import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ConsultationRequestDto {
-    
+public class CreateConsultationRequest {
+
 	private Long customerId;
 
-	@JsonFormat(pattern = "yyyyMMdd HH:mm")  // JSON 날짜 포맷 지정
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")  // JSON 날짜 포맷 지정
 	private LocalDateTime date;
 
 	private String purpose;
@@ -32,5 +34,5 @@ public class ConsultationRequestDto {
 
 	private String memo;
 
-	private String consultationStatus;
+	private Consultation.ConsultationStatus consultationStatus;
 }
