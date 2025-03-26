@@ -22,14 +22,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
-@RestController("/api/agents")
+@RestController
 @RequiredArgsConstructor
 public class CustomerController {
 
 	private final CustomerService customerService;
 
-	@PostMapping("/{agentId}/customers")
-	public ResponseEntity<ApiResponse> createCustomer(
+	@PostMapping("/api/agents/{agentId}/customers")
+	public ResponseEntity<ApiResponse<Void>> createCustomer(
 		@PathVariable("agentId") Long agentId,
 		@RequestBody CreateCustomerRequest createCustomerRequestDto
 	) {
@@ -48,8 +48,8 @@ public class CustomerController {
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
 
-	@PostMapping(value = "/{agentId}/customers/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ApiResponse> bulkCreateCustomer(
+	@PostMapping(value = "/api/agents/{agentId}/customers/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ApiResponse<Void>> bulkCreateCustomer(
 		@PathVariable("agentId") Long agentId,
 		@RequestParam("file") MultipartFile file
 	) {
@@ -58,16 +58,16 @@ public class CustomerController {
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
 
-	@DeleteMapping("/{agentId}/customers/{customerId}")
-	public ResponseEntity<ApiResponse> deleteCustomer(
+	@DeleteMapping("/api/agents/{agentId}/customers/{customerId}")
+	public ResponseEntity<ApiResponse<Void>> deleteCustomer(
 		@PathVariable("customerId") Long customerId
 	) {
 		customerService.deleteCustomer(customerId);
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
 
-	@PatchMapping("/{agentId}/customers/{customerId}")
-	public ResponseEntity<ApiResponse> updateCustomer(
+	@PatchMapping("/api/agents/{agentId}/customers/{customerId}")
+	public ResponseEntity<ApiResponse<Void>> updateCustomer(
 		@PathVariable("agentId") Long agentId,
 		@PathVariable("customerId") Long customerId,
 		@RequestBody UpdateCustomerRequest updateCustomerRequest
@@ -86,7 +86,7 @@ public class CustomerController {
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
 
-	@GetMapping("/{agentId}/customers")
+	@GetMapping("/api/agents/{agentId}/customers")
 	public ResponseEntity<ApiResponse<List<CustomerResponse>>> getAllCustomers() {
 		List<CustomerCommand> customerCommandList = customerService.getAllCustomers();
 		List<CustomerResponse> customerResponseList = customerCommandList.stream()
@@ -95,12 +95,12 @@ public class CustomerController {
 		return ResponseEntity.ok(ApiResponse.ok(customerResponseList));
 	}
 
-	@GetMapping("/{agentId}/customers/{customerId}")
+	@GetMapping("/api/agents/{agentId}/customers/{customerId}")
 	public ResponseEntity<ApiResponse<CustomerResponse>> getCustomer(
 		@PathVariable("customerId") Long customerId
 	) {
 		CustomerCommand customerCommand = customerService.getCustomerById(customerId);
-		
+
 		return ResponseEntity.ok(ApiResponse.ok(CustomerResponse.of(customerCommand)));
 	}
 
