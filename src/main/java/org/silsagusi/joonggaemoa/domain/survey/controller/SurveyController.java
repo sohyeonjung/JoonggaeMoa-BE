@@ -27,7 +27,7 @@ public class SurveyController {
 	private final SurveyService surveyService;
 
 	@PostMapping("/api/agents/{agentId}/surveys")
-	public ResponseEntity<ApiResponse> createSurvey(
+	public ResponseEntity<ApiResponse<Void>> createSurvey(
 		@PathVariable("agentId") Long agentId,
 		@RequestBody SurveyCreateRequest surveyCreateRequest
 	) {
@@ -50,7 +50,7 @@ public class SurveyController {
 	}
 
 	@DeleteMapping("/api/agents/{agentId}/surveys/{surveyId}")
-	public ResponseEntity<ApiResponse> deleteSurvey(
+	public ResponseEntity<ApiResponse<Void>> deleteSurvey(
 		@PathVariable("surveyId") Long surveyId
 	) {
 		surveyService.deleteSurvey(surveyId);
@@ -58,7 +58,7 @@ public class SurveyController {
 	}
 
 	@PatchMapping("/api/agents/{agentId}/surveys/{surveyId}")
-	public ResponseEntity<ApiResponse> updateSurvey(
+	public ResponseEntity<ApiResponse<Void>> updateSurvey(
 		@PathVariable("surveyId") Long surveyId,
 		@RequestBody SurveyUpdateRequest surveyUpdateRequest
 	) {

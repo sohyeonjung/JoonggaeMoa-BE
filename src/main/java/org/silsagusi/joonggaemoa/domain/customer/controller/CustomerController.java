@@ -29,7 +29,7 @@ public class CustomerController {
 	private final CustomerService customerService;
 
 	@PostMapping("/api/agents/{agentId}/customers")
-	public ResponseEntity<ApiResponse> createCustomer(
+	public ResponseEntity<ApiResponse<Void>> createCustomer(
 		@PathVariable("agentId") Long agentId,
 		@RequestBody CreateCustomerRequest createCustomerRequestDto
 	) {
@@ -49,7 +49,7 @@ public class CustomerController {
 	}
 
 	@PostMapping(value = "/api/agents/{agentId}/customers/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ApiResponse> bulkCreateCustomer(
+	public ResponseEntity<ApiResponse<Void>> bulkCreateCustomer(
 		@PathVariable("agentId") Long agentId,
 		@RequestParam("file") MultipartFile file
 	) {
@@ -59,7 +59,7 @@ public class CustomerController {
 	}
 
 	@DeleteMapping("/api/agents/{agentId}/customers/{customerId}")
-	public ResponseEntity<ApiResponse> deleteCustomer(
+	public ResponseEntity<ApiResponse<Void>> deleteCustomer(
 		@PathVariable("customerId") Long customerId
 	) {
 		customerService.deleteCustomer(customerId);
@@ -67,7 +67,7 @@ public class CustomerController {
 	}
 
 	@PatchMapping("/api/agents/{agentId}/customers/{customerId}")
-	public ResponseEntity<ApiResponse> updateCustomer(
+	public ResponseEntity<ApiResponse<Void>> updateCustomer(
 		@PathVariable("agentId") Long agentId,
 		@PathVariable("customerId") Long customerId,
 		@RequestBody UpdateCustomerRequest updateCustomerRequest
