@@ -8,5 +8,5 @@ import lombok.Data;
 public class SurveyCreateRequest {
 	private String title;
 	private String description;
-	private List<QuestionRequest> questionList;
+	private List<QuestionCreateRequest> questionList;
 }

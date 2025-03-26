@@ -33,7 +33,6 @@ public class SurveyController {
 	) {
 		List<QuestionCommand> questionCommandList = surveyCreateRequest.getQuestionList()
 			.stream().map(it -> QuestionCommand.builder()
-				.surveyId(it.getSurveyId())
 				.content(it.getContent())
 				.type(it.getType())
 				.isRequired(it.getIsRequired())
@@ -66,7 +65,6 @@ public class SurveyController {
 		List<QuestionCommand> questionCommandList = surveyUpdateRequest.getQuestionList()
 			.stream().map(it -> QuestionCommand.builder()
 				.id(it.getId())
-				.surveyId(it.getSurveyId())
 				.content(it.getContent())
 				.type(it.getType())
 				.isRequired(it.getIsRequired())

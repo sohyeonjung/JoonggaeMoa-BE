@@ -13,6 +13,7 @@ import org.silsagusi.joonggaemoa.domain.survey.service.command.QuestionCommand;
 import org.silsagusi.joonggaemoa.domain.survey.service.command.SurveyCommand;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -66,7 +67,9 @@ public class SurveyService {
 		String description,
 		List<QuestionCommand> questionCommandList
 	) {
-		Survey survey = surveyRepository.getById(surveyId);
+		Survey survey = surveyRepository.findById(surveyId)
+			.orElseThrow(() -> new EntityNotFoundException("Survey not found"));
+
 		survey.updateSurveyTitleDescription(
 			(title == null || title.isBlank()) ? survey.getTitle() : title,
 			(description == null || description.isBlank()) ? survey.getDescription() : description
@@ -74,22 +77,12 @@ public class SurveyService {
 
 		List<Question> questionList = survey.getQuestionList();
 		List<Question> questionsToRemove = new ArrayList<>();
+		List<Question> questionsToAdd = new ArrayList<>();
+
 		//바뀐 질문, 새로운 질문
 		for (QuestionCommand command : questionCommandList) {
-			boolean found = false;
-			for (Question question : questionList) {
-				if (question.getId().equals(command.getId())) {
-					question.updateQuestion(
-						command.getContent(),
-						command.getType(),
-						command.getIsRequired(),
-						command.getOptions()
-					);
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
+			//새로운 질문
+			if (command.getId() < 0 || command.getId() == null) {
 				Question question = new Question(
 					survey,
 					command.getContent(),
@@ -98,8 +91,23 @@ public class SurveyService {
 					command.getOptions()
 				);
 				survey.getQuestionList().add(question);
+			} else {
+				//바뀐 질문
+				for (Question question : questionList) {
+					if (question.getId().equals(command.getId())) {
+						question.updateQuestion(
+							command.getContent(),
+							command.getType(),
+							command.getIsRequired(),
+							command.getOptions()
+						);
+						break;
+					}
+				}
 			}
+
 		}
+
 		//삭제 된 질문
 		for (Question question : questionList) {
 			boolean found = false;
@@ -112,9 +120,9 @@ public class SurveyService {
 			if (!found)
 				questionsToRemove.add(question);
 		}
-		questionList.removeAll(questionsToRemove);
+
 		questionRepository.deleteAll(questionsToRemove);
-		
+		questionRepository.saveAll(questionList);
 		surveyRepository.save(survey);
 	}
 
