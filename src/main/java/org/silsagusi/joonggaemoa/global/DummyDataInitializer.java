@@ -14,12 +14,11 @@ import org.silsagusi.joonggaemoa.domain.message.entity.ReservedMessage;
 import org.silsagusi.joonggaemoa.domain.message.repository.ReservedMessageRepository;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
+// @Component
 public class DummyDataInitializer {
 
 	@Bean

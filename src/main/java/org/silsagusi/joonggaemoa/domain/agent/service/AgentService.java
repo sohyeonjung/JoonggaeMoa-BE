@@ -41,11 +41,11 @@ public class AgentService {
 		}
 
 		Agent agent = new Agent(
-			username,
-			bCryptPasswordEncoder.encode(password),
 			name,
 			phone,
 			email,
+			username,
+			bCryptPasswordEncoder.encode(password),
 			office,
 			region,
 			businessNo

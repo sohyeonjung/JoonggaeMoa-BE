@@ -3,10 +3,13 @@ package org.silsagusi.joonggaemoa.global.batch;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import org.silsagusi.joonggaemoa.domain.agent.entity.Agent;
+import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
 import org.silsagusi.joonggaemoa.domain.message.entity.Message;
 import org.silsagusi.joonggaemoa.domain.message.entity.ReservedMessage;
 import org.silsagusi.joonggaemoa.domain.message.repository.MessageRepository;
 import org.silsagusi.joonggaemoa.domain.message.repository.ReservedMessageRepository;
+import org.silsagusi.joonggaemoa.domain.message.repository.SmsUtil;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
@@ -38,6 +41,7 @@ public class SmsBatchJogConfig {
 	private final PlatformTransactionManager platformTransactionManager;
 	private final ReservedMessageRepository reservedMessageRepository;
 	private final MessageRepository messageRepository;
+	private final SmsUtil smsUtil;
 
 	@Bean
 	public Job createJob(Step step) {
@@ -85,6 +89,13 @@ public class SmsBatchJogConfig {
 					log.error("Reserved message content is null");
 					return null;
 				}
+
+				Customer customer = reservedMessage.getCustomer();
+				Agent agent = customer.getAgent();
+				String text = reservedMessage.getContent();
+				LocalDateTime sendAt = reservedMessage.getSendAt();
+
+				smsUtil.sendMessage(agent.getPhone(), customer.getPhone(), text, sendAt);
 
 				return new Message(reservedMessage.getCustomer(), reservedMessage.getContent());
 			} catch (Exception e) {
