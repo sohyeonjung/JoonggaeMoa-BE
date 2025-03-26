@@ -11,6 +11,8 @@ import org.silsagusi.joonggaemoa.domain.consultation.service.command.Consultatio
 import org.silsagusi.joonggaemoa.domain.consultation.service.command.ConsultationStatusCommand;
 import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
 import org.silsagusi.joonggaemoa.domain.customer.repository.CustomerRepository;
+import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
+import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -33,7 +35,8 @@ public class ConsultationService {
 		String memo,
 		Consultation.ConsultationStatus consultationStatus
 	) {
-		Customer customer = customerRepository.findById(customerId).orElseThrow();
+		Customer customer = customerRepository.findById(customerId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 		Consultation consultation = new Consultation(
 			customer,
 			date,
@@ -50,7 +53,8 @@ public class ConsultationService {
 	}
 
 	public void updateConsultationStatus(Long consultationId, Consultation.ConsultationStatus consultationStatus) {
-		Consultation consultation = consultationRepository.findById(consultationId).orElseThrow();
+		Consultation consultation = consultationRepository.findById(consultationId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 		consultation.updateStatus(consultationStatus);
 		consultationRepository.save(consultation);
 	}
@@ -66,7 +70,8 @@ public class ConsultationService {
 		String memo,
 		Consultation.ConsultationStatus consultationStatus
 	) {
-		Consultation consultation = consultationRepository.findById(consultationId).orElseThrow();
+		Consultation consultation = consultationRepository.findById(consultationId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 		consultation.updateConsultation(
 			(date == null) ? consultation.getDate() : date,
 			(purpose == null || purpose.isBlank()) ? consultation.getPurpose() : purpose,
@@ -95,7 +100,8 @@ public class ConsultationService {
 	}
 
 	public ConsultationCommand getConsultation(Long consultationId) {
-		Consultation consultation = consultationRepository.findById(consultationId).orElseThrow();
+		Consultation consultation = consultationRepository.findById(consultationId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 		return ConsultationCommand.of(consultation);
 	}
 
