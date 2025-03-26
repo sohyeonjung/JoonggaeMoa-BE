@@ -33,7 +33,7 @@ public class ConsultationService {
 		String memo,
 		Consultation.ConsultationStatus consultationStatus
 	) {
-		Customer customer = customerRepository.getById(customerId);
+		Customer customer = customerRepository.findById(customerId).orElseThrow();
 		Consultation consultation = new Consultation(
 			customer,
 			date,
@@ -50,7 +50,7 @@ public class ConsultationService {
 	}
 
 	public void updateConsultationStatus(Long consultationId, Consultation.ConsultationStatus consultationStatus) {
-		Consultation consultation = consultationRepository.getById(consultationId);
+		Consultation consultation = consultationRepository.findById(consultationId).orElseThrow();
 		consultation.updateStatus(consultationStatus);
 		consultationRepository.save(consultation);
 	}
@@ -66,7 +66,7 @@ public class ConsultationService {
 		String memo,
 		Consultation.ConsultationStatus consultationStatus
 	) {
-		Consultation consultation = consultationRepository.getById(consultationId);
+		Consultation consultation = consultationRepository.findById(consultationId).orElseThrow();
 		consultation.updateConsultation(
 			(date == null) ? consultation.getDate() : date,
 			(purpose == null || purpose.isBlank()) ? consultation.getPurpose() : purpose,
@@ -88,8 +88,9 @@ public class ConsultationService {
 		return consultationList.stream().map(it -> ConsultationCommand.of(it)).toList();
 	}
 
-	public List<ConsultationCommand> getConsultationsByStatus(Consultation.ConsultationStatus consultationStatus) {
-		List<Consultation> consultationList = consultationRepository.findAllByConsultationStatus(consultationStatus);
+	public List<ConsultationCommand> getConsultationsByStatus(String consultationStatus) {
+		List<Consultation> consultationList = consultationRepository.findAllByConsultationStatus(
+			Consultation.ConsultationStatus.valueOf(consultationStatus));
 		return consultationList.stream().map(it -> ConsultationCommand.of(it)).toList();
 	}
 

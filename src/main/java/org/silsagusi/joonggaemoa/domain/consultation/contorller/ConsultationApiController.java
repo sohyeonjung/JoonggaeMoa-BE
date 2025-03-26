@@ -47,7 +47,7 @@ public class ConsultationApiController {
 
 	}
 
-	@GetMapping("/api/agents/{agentId}/consultations/list")
+	@GetMapping("/api/agents/{agentId}/consultations")
 	public ResponseEntity<ApiResponse<List<ConsultationResponse>>> getAllConsultation() {
 		List<ConsultationCommand> consultationCommandList = consultationService.getAllConsultations();
 		List<ConsultationResponse> consultationResponseList = consultationCommandList.stream()
@@ -55,9 +55,9 @@ public class ConsultationApiController {
 		return ResponseEntity.ok(ApiResponse.ok(consultationResponseList));
 	}
 
-	@GetMapping("/api/agents/{agentId}/consultations/status/{consultationStatus}")
+	@GetMapping("/api/agents/{agentId}/consultations/status")
 	public ResponseEntity<ApiResponse<List<ConsultationResponse>>> getAllConsultationByStatus(
-		@PathVariable("consultationStatus") Consultation.ConsultationStatus consultationStatus
+		@RequestParam String consultationStatus
 	) {
 		List<ConsultationCommand> consultationCommandList = consultationService.getConsultationsByStatus(
 			consultationStatus);
@@ -75,7 +75,7 @@ public class ConsultationApiController {
 		return ResponseEntity.ok(ApiResponse.ok(consultationResponse));
 	}
 
-	@GetMapping("/api/agents/{agentId}/consultations/status")
+	@GetMapping("/api/agents/{agentId}/consultations/status-inform")
 	public ResponseEntity<ApiResponse<ConsultationStatusResponse>> getStatusInformation() {
 		ConsultationStatusCommand consultationStatusCommand = consultationService.getStatusInformation();
 		ConsultationStatusResponse consultationStatusResponse = ConsultationStatusResponse.of(
