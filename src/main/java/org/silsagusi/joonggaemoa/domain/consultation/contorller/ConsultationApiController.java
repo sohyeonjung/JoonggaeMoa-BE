@@ -1,11 +1,18 @@
 package org.silsagusi.joonggaemoa.domain.consultation.contorller;
 
+import java.util.List;
+
+import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.ConsultationResponse;
+import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.ConsultationStatusResponse;
 import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.CreateConsultationRequest;
 import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.UpdateConsultationRequest;
 import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
 import org.silsagusi.joonggaemoa.domain.consultation.service.ConsultationService;
+import org.silsagusi.joonggaemoa.domain.consultation.service.command.ConsultationCommand;
+import org.silsagusi.joonggaemoa.domain.consultation.service.command.ConsultationStatusCommand;
 import org.silsagusi.joonggaemoa.global.api.ApiResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +30,6 @@ public class ConsultationApiController {
 
 	@PostMapping("/api/agents/{agentId}/consultations")
 	public ResponseEntity<ApiResponse<Void>> createConsultation(
-		@PathVariable("agentId") String agentId,
 		@RequestBody CreateConsultationRequest createConsultationRequest
 	) {
 		consultationService.createConsultation(
@@ -41,14 +47,41 @@ public class ConsultationApiController {
 
 	}
 
-	//상담 리스트 조회
-	//	@GetMapping("")
+	@GetMapping("/api/agents/{agentId}/consultations/list")
+	public ResponseEntity<ApiResponse<List<ConsultationResponse>>> getAllConsultation() {
+		List<ConsultationCommand> consultationCommandList = consultationService.getAllConsultations();
+		List<ConsultationResponse> consultationResponseList = consultationCommandList.stream()
+			.map(it -> ConsultationResponse.of(it)).toList();
+		return ResponseEntity.ok(ApiResponse.ok(consultationResponseList));
+	}
 
-	//상담 상태별 건수 조회
-	//	@GetMapping("")
+	@GetMapping("/api/agents/{agentId}/consultations/status/{consultationStatus}")
+	public ResponseEntity<ApiResponse<List<ConsultationResponse>>> getAllConsultationByStatus(
+		@PathVariable("consultationStatus") Consultation.ConsultationStatus consultationStatus
+	) {
+		List<ConsultationCommand> consultationCommandList = consultationService.getConsultationsByStatus(
+			consultationStatus);
+		List<ConsultationResponse> consultationResponseList = consultationCommandList.stream()
+			.map(it -> ConsultationResponse.of(it)).toList();
+		return ResponseEntity.ok(ApiResponse.ok(consultationResponseList));
+	}
 
-	//상담 상세 조회
-	//	@GetMapping("")
+	@GetMapping("/api/agents/{agentId}/consultations/{consultationId}")
+	public ResponseEntity<ApiResponse<ConsultationResponse>> getConsultation(
+		@PathVariable("consultationId") Long consultationId
+	) {
+		ConsultationCommand consultationCommand = consultationService.getConsultation(consultationId);
+		ConsultationResponse consultationResponse = ConsultationResponse.of(consultationCommand);
+		return ResponseEntity.ok(ApiResponse.ok(consultationResponse));
+	}
+
+	@GetMapping("/api/agents/{agentId}/consultations/status")
+	public ResponseEntity<ApiResponse<ConsultationStatusResponse>> getStatusInformation() {
+		ConsultationStatusCommand consultationStatusCommand = consultationService.getStatusInformation();
+		ConsultationStatusResponse consultationStatusResponse = ConsultationStatusResponse.of(
+			consultationStatusCommand);
+		return ResponseEntity.ok(ApiResponse.ok(consultationStatusResponse));
+	}
 
 	@PatchMapping("/api/agents/{agentId}/consultations/{consultationId}")
 	public ResponseEntity<ApiResponse<Void>> updateConsultation(

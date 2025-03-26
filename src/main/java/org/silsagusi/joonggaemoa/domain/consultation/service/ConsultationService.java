@@ -1,9 +1,14 @@
 package org.silsagusi.joonggaemoa.domain.consultation.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
 import org.silsagusi.joonggaemoa.domain.consultation.repository.ConsultationRepository;
+import org.silsagusi.joonggaemoa.domain.consultation.service.command.ConsultationCommand;
+import org.silsagusi.joonggaemoa.domain.consultation.service.command.ConsultationStatusCommand;
 import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
 import org.silsagusi.joonggaemoa.domain.customer.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
@@ -76,5 +81,36 @@ public class ConsultationService {
 
 		);
 		consultationRepository.save(consultation);
+	}
+
+	public List<ConsultationCommand> getAllConsultations() {
+		List<Consultation> consultationList = consultationRepository.findAll();
+		return consultationList.stream().map(it -> ConsultationCommand.of(it)).toList();
+	}
+
+	public List<ConsultationCommand> getConsultationsByStatus(Consultation.ConsultationStatus consultationStatus) {
+		List<Consultation> consultationList = consultationRepository.findAllByConsultationStatus(consultationStatus);
+		return consultationList.stream().map(it -> ConsultationCommand.of(it)).toList();
+	}
+
+	public ConsultationCommand getConsultation(Long consultationId) {
+		Consultation consultation = consultationRepository.findById(consultationId).orElseThrow();
+		return ConsultationCommand.of(consultation);
+	}
+
+	public ConsultationStatusCommand getStatusInformation() {
+		List<Consultation> consultations = consultationRepository.findAll();
+
+		Map<Consultation.ConsultationStatus, Long> statusCountMap = consultations.stream()
+			.collect(Collectors.groupingBy(Consultation::getConsultationStatus, Collectors.counting()));
+
+		return ConsultationStatusCommand.builder()
+			.consultationAll((long)consultations.size())
+			.consultationWaiting(statusCountMap.getOrDefault(Consultation.ConsultationStatus.WAITING, 0L))
+			.consultationConfirmed(statusCountMap.getOrDefault(Consultation.ConsultationStatus.CONFIRMED, 0L))
+			.consultationCancelled(statusCountMap.getOrDefault(Consultation.ConsultationStatus.CANCELED, 0L))
+			.consultationCompleted(statusCountMap.getOrDefault(Consultation.ConsultationStatus.COMPLETED, 0L))
+			.build();
+
 	}
 }
