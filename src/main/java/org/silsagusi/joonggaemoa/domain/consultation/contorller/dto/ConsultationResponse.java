@@ -2,7 +2,6 @@ package org.silsagusi.joonggaemoa.domain.consultation.contorller.dto;
 
 import java.time.LocalDateTime;
 
-import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
 import org.silsagusi.joonggaemoa.domain.consultation.service.command.ConsultationCommand;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -22,6 +21,10 @@ public class ConsultationResponse {
 
 	private Long customerId;
 
+	private String customerName;
+
+	private String customerPhone;
+
 	@JsonFormat(pattern = "yyyyMMdd HH:mm")  // JSON 날짜 포맷 지정
 	private LocalDateTime date;
 
@@ -37,12 +40,14 @@ public class ConsultationResponse {
 
 	private String memo;
 
-	private Consultation.ConsultationStatus consultationStatus;
+	private String consultationStatus;
 
 	public static ConsultationResponse of(ConsultationCommand command) {
 		return ConsultationResponse.builder()
 			.consultationId(command.getConsultationId())
 			.customerId(command.getCustomerId())
+			.customerName(command.getCustomerName())
+			.customerPhone(command.getCustomerPhone())
 			.date(command.getDate())
 			.purpose(command.getPurpose())
 			.interestProperty(command.getInterestProperty())
