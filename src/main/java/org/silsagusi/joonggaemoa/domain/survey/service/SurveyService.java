@@ -77,7 +77,19 @@ public class SurveyService {
 
 		List<Question> questionList = survey.getQuestionList();
 		List<Question> questionsToRemove = new ArrayList<>();
-		List<Question> questionsToAdd = new ArrayList<>();
+
+		//삭제 된 질문
+		for (Question question : questionList) {
+			boolean found = false;
+			for (QuestionCommand command : questionCommandList) {
+				if (question.getId().equals(command.getId())) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				question.deleteQuestion();
+		}
 
 		//바뀐 질문, 새로운 질문
 		for (QuestionCommand command : questionCommandList) {
@@ -95,12 +107,17 @@ public class SurveyService {
 				//바뀐 질문
 				for (Question question : questionList) {
 					if (question.getId().equals(command.getId())) {
-						question.updateQuestion(
+						//새롭게 만들고
+						Question question2 = new Question(
+							survey,
 							command.getContent(),
 							command.getType(),
 							command.getIsRequired(),
 							command.getOptions()
 						);
+						survey.getQuestionList().add(question2);
+						// 기존 질문의 isDeleted = true
+						question.deleteQuestion();
 						break;
 					}
 				}
@@ -108,20 +125,7 @@ public class SurveyService {
 
 		}
 
-		//삭제 된 질문
-		for (Question question : questionList) {
-			boolean found = false;
-			for (QuestionCommand command : questionCommandList) {
-				if (question.getId().equals(command.getId())) {
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				questionsToRemove.add(question);
-		}
-
-		questionRepository.deleteAll(questionsToRemove);
+		//questionRepository.deleteAll(questionsToRemove);
 		questionRepository.saveAll(questionList);
 		surveyRepository.save(survey);
 	}
