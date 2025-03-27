@@ -23,7 +23,7 @@ public class MessageController {
 	private final MessageService messageService;
 
 	@GetMapping("/api/agents/{agentId}/messages")
-	public ResponseEntity<ApiResponse<?>> getMessage(
+	public ResponseEntity<ApiResponse<Page<MessageResponse>>> getMessage(
 		@PathVariable Long agentId,
 		@RequestParam Long lastMessageId
 	) {
@@ -35,7 +35,7 @@ public class MessageController {
 	}
 
 	@PostMapping("/api/agents/{agentId}/messages")
-	public ResponseEntity<ApiResponse<?>> reserveMessage(
+	public ResponseEntity<ApiResponse<Void>> reserveMessage(
 		@PathVariable Long agentId,
 		@RequestBody MessageRequest request
 	) {
