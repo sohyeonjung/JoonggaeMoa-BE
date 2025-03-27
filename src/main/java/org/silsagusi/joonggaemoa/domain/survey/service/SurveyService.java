@@ -91,7 +91,7 @@ public class SurveyService {
 		);
 
 		List<Question> questionList = survey.getQuestionList();
-List<Question> questionsToDelete = new ArrayList<>();
+		List<Question> questionsToDelete = new ArrayList<>();
 
 		//바뀐 질문, 새로운 질문
 		for (QuestionCommand command : questionCommandList) {
@@ -120,14 +120,14 @@ List<Question> questionsToDelete = new ArrayList<>();
 						break;
 					}
 					if (!found) {
-						questionsTodelete.add(question);
+						questionsToDelete.add(question);
 					}
 				}
 			}
 
 		}
 		questionRepository.saveAll(questionList);
-		questionRepository.deleteAll(questionsTodelete);
+		questionRepository.deleteAll(questionsToDelete);
 		surveyRepository.save(survey);
 	}
 
