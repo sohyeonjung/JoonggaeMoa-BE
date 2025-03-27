@@ -16,7 +16,6 @@ public class QuestionCommand {
 	private String type;
 	private Boolean isRequired;
 	private List<String> options;
-	private Boolean isDeleted;
 
 	public static QuestionCommand of(Question question) {
 		return QuestionCommand.builder()
