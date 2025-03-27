@@ -5,15 +5,25 @@ import java.util.List;
 
 import org.silsagusi.joonggaemoa.domain.agent.entity.Agent;
 import org.silsagusi.joonggaemoa.domain.agent.repository.AgentRepository;
+import org.silsagusi.joonggaemoa.domain.agent.service.AgentService;
+import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
+import org.silsagusi.joonggaemoa.domain.consultation.repository.ConsultationRepository;
+import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
+import org.silsagusi.joonggaemoa.domain.customer.repository.CustomerRepository;
+import org.silsagusi.joonggaemoa.domain.customer.service.CustomerService;
+import org.silsagusi.joonggaemoa.domain.survey.entity.Answer;
 import org.silsagusi.joonggaemoa.domain.survey.entity.Question;
 import org.silsagusi.joonggaemoa.domain.survey.entity.Survey;
+import org.silsagusi.joonggaemoa.domain.survey.repository.AnswerRepository;
 import org.silsagusi.joonggaemoa.domain.survey.repository.QuestionRepository;
 import org.silsagusi.joonggaemoa.domain.survey.repository.SurveyRepository;
+import org.silsagusi.joonggaemoa.domain.survey.service.command.AnswerCommand;
 import org.silsagusi.joonggaemoa.domain.survey.service.command.QuestionCommand;
 import org.silsagusi.joonggaemoa.domain.survey.service.command.SurveyCommand;
+import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
+import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +34,11 @@ public class SurveyService {
 	private final SurveyRepository surveyRepository;
 	private final AgentRepository agentRepository;
 	private final QuestionRepository questionRepository;
+	private final CustomerService customerService;
+	private final AgentService agentService;
+	private final CustomerRepository customerRepository;
+	private final AnswerRepository answerRepository;
+	private final ConsultationRepository consultationRepository;
 
 	public void createSurvey(
 		Long agentId,
@@ -31,7 +46,8 @@ public class SurveyService {
 		String description,
 		List<QuestionCommand> questionCommandList
 	) {
-		Agent agent = agentRepository.getOne(agentId);
+		Agent agent = agentRepository.findById(agentId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
 		Survey survey = new Survey(agent, title, description, new ArrayList<>());
 
@@ -68,7 +84,7 @@ public class SurveyService {
 		List<QuestionCommand> questionCommandList
 	) {
 		Survey survey = surveyRepository.findById(surveyId)
-			.orElseThrow(() -> new EntityNotFoundException("Survey not found"));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
 		survey.updateSurveyTitleDescription(
 			(title == null || title.isBlank()) ? survey.getTitle() : title,
@@ -76,7 +92,6 @@ public class SurveyService {
 		);
 
 		List<Question> questionList = survey.getQuestionList();
-		List<Question> questionsToRemove = new ArrayList<>();
 
 		//삭제 된 질문
 		for (Question question : questionList) {
@@ -124,8 +139,6 @@ public class SurveyService {
 			}
 
 		}
-
-		//questionRepository.deleteAll(questionsToRemove);
 		questionRepository.saveAll(questionList);
 		surveyRepository.save(survey);
 	}
@@ -136,8 +149,60 @@ public class SurveyService {
 	}
 
 	public SurveyCommand findById(Long surveyId) {
-		Survey survey = surveyRepository.getOne(surveyId);
+		Survey survey = surveyRepository.findById(surveyId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+		;
 		return SurveyCommand.of(survey);
 	}
 
+	public void submitSurveyAnswer(
+		Long agentId,
+		Long surveyId,
+		String name,
+		String email,
+		String phone,
+		Boolean consent,
+		String answer
+	) {
+		Survey survey = surveyRepository.findById(surveyId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+		Agent agent = agentRepository.findById(agentId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+
+		// 고객인지 판별(휴대폰 번호) 후 고객 데이터 추가
+		Customer customer = customerService.getCustomerByPhone(phone);
+		if (customer == null) {
+			Customer newCustomer = new Customer(
+				name,
+				phone,
+				email,
+				consent,
+				agent
+			);
+			customerRepository.save(newCustomer);
+			customer = newCustomer;
+		}
+
+		// 상담 추가
+		Consultation consultation = new Consultation(
+			customer,
+			Consultation.ConsultationStatus.WAITING
+		);
+		consultationRepository.save(consultation);
+
+		// 응답 추가
+		Answer newanswer = new Answer(
+			customer,
+			survey,
+			answer
+		);
+		answerRepository.save(newanswer);
+
+	}
+
+	public List<AnswerCommand> getAllAnswers() {
+		List<Answer> answerList = answerRepository.findAll();
+		return answerList.stream().map(it -> AnswerCommand.of(it)).toList();
+
+	}
 }

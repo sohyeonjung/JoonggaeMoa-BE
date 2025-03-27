@@ -58,7 +58,8 @@ public class Consultation {
 		COMPLETED    // 진행 완료
 	}
 
-	public Consultation(Customer customer,
+	public Consultation(
+		Customer customer,
 		LocalDateTime date,
 		String purpose,
 		String interestProperty,
@@ -76,6 +77,14 @@ public class Consultation {
 		this.contractType = contractType;
 		this.assetStatus = assetStatus;
 		this.memo = memo;
+		this.consultationStatus = consultationStatus;
+	}
+
+	public Consultation(
+		Customer customer,
+		ConsultationStatus consultationStatus
+	) {
+		this.customer = customer;
 		this.consultationStatus = consultationStatus;
 	}
 
