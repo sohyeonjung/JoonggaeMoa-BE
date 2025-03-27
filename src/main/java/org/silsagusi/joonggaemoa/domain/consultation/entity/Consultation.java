@@ -61,22 +61,10 @@ public class Consultation {
 	public Consultation(
 		Customer customer,
 		LocalDateTime date,
-		String purpose,
-		String interestProperty,
-		String interestLocation,
-		String contractType,
-		String assetStatus,
-		String memo,
 		ConsultationStatus consultationStatus
 	) {
 		this.customer = customer;
 		this.date = date;
-		this.purpose = purpose;
-		this.interestProperty = interestProperty;
-		this.interestLocation = interestLocation;
-		this.contractType = contractType;
-		this.assetStatus = assetStatus;
-		this.memo = memo;
 		this.consultationStatus = consultationStatus;
 	}
 

@@ -33,14 +33,7 @@ public class ConsultationApiController {
 	) {
 		consultationService.createConsultation(
 			createConsultationRequest.getCustomerId(),
-			createConsultationRequest.getDate(),
-			createConsultationRequest.getPurpose(),
-			createConsultationRequest.getInterestProperty(),
-			createConsultationRequest.getInterestLocation(),
-			createConsultationRequest.getContractType(),
-			createConsultationRequest.getAssetStatus(),
-			createConsultationRequest.getMemo(),
-			createConsultationRequest.getConsultationStatus()
+			createConsultationRequest.getDate()
 		);
 		return ResponseEntity.ok(ApiResponse.ok());
 

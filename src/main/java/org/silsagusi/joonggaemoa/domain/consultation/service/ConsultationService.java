@@ -26,27 +26,14 @@ public class ConsultationService {
 
 	public void createConsultation(
 		Long customerId,
-		LocalDateTime date,
-		String purpose,
-		String interestProperty,
-		String interestLocation,
-		String contractType,
-		String assetStatus,
-		String memo,
-		String consultationStatus
+		LocalDateTime date
 	) {
 		Customer customer = customerRepository.findById(customerId)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 		Consultation consultation = new Consultation(
 			customer,
 			date,
-			purpose,
-			interestProperty,
-			interestLocation,
-			contractType,
-			assetStatus,
-			memo,
-			Consultation.ConsultationStatus.valueOf(consultationStatus)
+			Consultation.ConsultationStatus.CONFIRMED
 		);
 		consultationRepository.save(consultation);
 
