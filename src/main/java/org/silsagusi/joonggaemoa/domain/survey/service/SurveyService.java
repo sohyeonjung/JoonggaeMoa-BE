@@ -5,15 +5,25 @@ import java.util.List;
 
 import org.silsagusi.joonggaemoa.domain.agent.entity.Agent;
 import org.silsagusi.joonggaemoa.domain.agent.repository.AgentRepository;
+import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
+import org.silsagusi.joonggaemoa.domain.consultation.repository.ConsultationRepository;
+import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
+import org.silsagusi.joonggaemoa.domain.customer.repository.CustomerRepository;
+import org.silsagusi.joonggaemoa.domain.customer.service.CustomerService;
+import org.silsagusi.joonggaemoa.domain.survey.entity.Answer;
 import org.silsagusi.joonggaemoa.domain.survey.entity.Question;
+import org.silsagusi.joonggaemoa.domain.survey.entity.QuestionAnswer;
 import org.silsagusi.joonggaemoa.domain.survey.entity.Survey;
+import org.silsagusi.joonggaemoa.domain.survey.repository.AnswerRepository;
 import org.silsagusi.joonggaemoa.domain.survey.repository.QuestionRepository;
 import org.silsagusi.joonggaemoa.domain.survey.repository.SurveyRepository;
+import org.silsagusi.joonggaemoa.domain.survey.service.command.AnswerCommand;
 import org.silsagusi.joonggaemoa.domain.survey.service.command.QuestionCommand;
 import org.silsagusi.joonggaemoa.domain.survey.service.command.SurveyCommand;
+import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
+import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +34,10 @@ public class SurveyService {
 	private final SurveyRepository surveyRepository;
 	private final AgentRepository agentRepository;
 	private final QuestionRepository questionRepository;
+	private final CustomerService customerService;
+	private final CustomerRepository customerRepository;
+	private final AnswerRepository answerRepository;
+	private final ConsultationRepository consultationRepository;
 
 	public void createSurvey(
 		Long agentId,
@@ -31,7 +45,8 @@ public class SurveyService {
 		String description,
 		List<QuestionCommand> questionCommandList
 	) {
-		Agent agent = agentRepository.getOne(agentId);
+		Agent agent = agentRepository.findById(agentId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
 		Survey survey = new Survey(agent, title, description, new ArrayList<>());
 
@@ -68,7 +83,7 @@ public class SurveyService {
 		List<QuestionCommand> questionCommandList
 	) {
 		Survey survey = surveyRepository.findById(surveyId)
-			.orElseThrow(() -> new EntityNotFoundException("Survey not found"));
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 
 		survey.updateSurveyTitleDescription(
 			(title == null || title.isBlank()) ? survey.getTitle() : title,
@@ -76,13 +91,12 @@ public class SurveyService {
 		);
 
 		List<Question> questionList = survey.getQuestionList();
-		List<Question> questionsToRemove = new ArrayList<>();
-		List<Question> questionsToAdd = new ArrayList<>();
+		List<Question> questionsToDelete = new ArrayList<>();
 
 		//바뀐 질문, 새로운 질문
 		for (QuestionCommand command : questionCommandList) {
 			//새로운 질문
-			if (command.getId() < 0 || command.getId() == null) {
+			if (command.getId() == null || command.getId() < 0) {
 				Question question = new Question(
 					survey,
 					command.getContent(),
@@ -92,7 +106,8 @@ public class SurveyService {
 				);
 				survey.getQuestionList().add(question);
 			} else {
-				//바뀐 질문
+				//바뀐 질문, 삭제 질문
+				boolean found = false;
 				for (Question question : questionList) {
 					if (question.getId().equals(command.getId())) {
 						question.updateQuestion(
@@ -101,28 +116,18 @@ public class SurveyService {
 							command.getIsRequired(),
 							command.getOptions()
 						);
+						found = true;
 						break;
+					}
+					if (!found) {
+						questionsToDelete.add(question);
 					}
 				}
 			}
 
 		}
-
-		//삭제 된 질문
-		for (Question question : questionList) {
-			boolean found = false;
-			for (QuestionCommand command : questionCommandList) {
-				if (question.getId().equals(command.getId())) {
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				questionsToRemove.add(question);
-		}
-
-		questionRepository.deleteAll(questionsToRemove);
 		questionRepository.saveAll(questionList);
+		questionRepository.deleteAll(questionsToDelete);
 		surveyRepository.save(survey);
 	}
 
@@ -132,8 +137,71 @@ public class SurveyService {
 	}
 
 	public SurveyCommand findById(Long surveyId) {
-		Survey survey = surveyRepository.getOne(surveyId);
+		Survey survey = surveyRepository.findById(surveyId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+		;
 		return SurveyCommand.of(survey);
 	}
 
+	public void submitSurveyAnswer(
+		Long agentId,
+		Long surveyId,
+		String name,
+		String email,
+		String phone,
+		Boolean consent,
+		List<String> questions,
+		List<String> answers
+	) {
+		Survey survey = surveyRepository.findById(surveyId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+		Agent agent = agentRepository.findById(agentId)
+			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+
+		// 고객인지 판별(휴대폰 번호) 후 고객 데이터 추가
+		Customer customer = customerService.getCustomerByPhone(phone);
+		if (customer == null) {
+			Customer newCustomer = new Customer(
+				name,
+				phone,
+				email,
+				consent,
+				agent
+			);
+			customerRepository.save(newCustomer);
+			customer = newCustomer;
+		}
+
+		// 상담 추가
+		Consultation consultation = new Consultation(
+			customer,
+			Consultation.ConsultationStatus.WAITING
+		);
+		consultationRepository.save(consultation);
+
+		// 응답 추가
+		List<QuestionAnswer> questionAnswerList = new ArrayList<>();
+		for (int i = 0; i < questions.size(); i++) {
+			QuestionAnswer questionAnswer = new QuestionAnswer(
+				questions.get(i),
+				answers.get(i)
+			);
+			questionAnswerList.add(questionAnswer);
+		}
+
+		Answer newanswer = new Answer(
+			customer,
+			survey,
+			questionAnswerList
+		);
+
+		answerRepository.save(newanswer);
+
+	}
+
+	public List<AnswerCommand> getAllAnswers() {
+		List<Answer> answerList = answerRepository.findAll();
+		return answerList.stream().map(it -> AnswerCommand.of(it)).toList();
+
+	}
 }
