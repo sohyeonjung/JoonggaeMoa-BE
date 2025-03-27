@@ -62,8 +62,7 @@ public class Customer {
 		this.agent = agent;
 	}
 
-	public void updateAgent(
-		Long id,
+	public void updateCustomer(
 		String name,
 		LocalDate birthday,
 		String phone,
@@ -71,10 +70,8 @@ public class Customer {
 		String job,
 		Boolean isVip,
 		String memo,
-		Boolean consent,
-		Agent agent
+		Boolean consent
 	) {
-		this.id = id;
 		this.name = name;
 		this.birthday = birthday;
 		this.phone = phone;
@@ -83,7 +80,6 @@ public class Customer {
 		this.isVip = isVip;
 		this.memo = memo;
 		this.consent = consent;
-		this.agent = agent;
 	}
 
 }
