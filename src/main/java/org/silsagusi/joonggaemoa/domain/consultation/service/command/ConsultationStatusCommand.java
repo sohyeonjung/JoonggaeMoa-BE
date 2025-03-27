@@ -6,9 +6,9 @@ import lombok.Getter;
 @Builder
 @Getter
 public class ConsultationStatusCommand {
-	Long consultationAll;
-	Long consultationWaiting;
-	Long consultationConfirmed;
-	Long consultationCancelled;
-	Long consultationCompleted;
+	private Long consultationAll;
+	private Long consultationWaiting;
+	private Long consultationConfirmed;
+	private Long consultationCancelled;
+	private Long consultationCompleted;
 }

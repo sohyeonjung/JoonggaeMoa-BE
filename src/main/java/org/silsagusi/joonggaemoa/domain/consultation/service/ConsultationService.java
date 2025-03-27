@@ -33,7 +33,7 @@ public class ConsultationService {
 		String contractType,
 		String assetStatus,
 		String memo,
-		Consultation.ConsultationStatus consultationStatus
+		String consultationStatus
 	) {
 		Customer customer = customerRepository.findById(customerId)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
@@ -46,16 +46,16 @@ public class ConsultationService {
 			contractType,
 			assetStatus,
 			memo,
-			consultationStatus
+			Consultation.ConsultationStatus.valueOf(consultationStatus)
 		);
 		consultationRepository.save(consultation);
 
 	}
 
-	public void updateConsultationStatus(Long consultationId, Consultation.ConsultationStatus consultationStatus) {
+	public void updateConsultationStatus(Long consultationId, String consultationStatus) {
 		Consultation consultation = consultationRepository.findById(consultationId)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
-		consultation.updateStatus(consultationStatus);
+		consultation.updateStatus(Consultation.ConsultationStatus.valueOf(consultationStatus));
 		consultationRepository.save(consultation);
 	}
 
@@ -68,7 +68,7 @@ public class ConsultationService {
 		String contractType,
 		String assetStatus,
 		String memo,
-		Consultation.ConsultationStatus consultationStatus
+		String consultationStatus
 	) {
 		Consultation consultation = consultationRepository.findById(consultationId)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
@@ -82,7 +82,8 @@ public class ConsultationService {
 			(contractType == null || contractType.isBlank()) ? consultation.getContractType() : contractType,
 			(assetStatus == null || assetStatus.isBlank()) ? consultation.getAssetStatus() : assetStatus,
 			(memo == null || memo.isBlank()) ? consultation.getMemo() : memo,
-			(consultationStatus == null) ? consultation.getConsultationStatus() : consultationStatus
+			(consultationStatus == null) ? consultation.getConsultationStatus() :
+				Consultation.ConsultationStatus.valueOf(consultationStatus)
 
 		);
 		consultationRepository.save(consultation);

@@ -8,11 +8,11 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ConsultationStatusResponse {
-	Long consultationAll;
-	Long consultationWaiting;
-	Long consultationConfirmed;
-	Long consultationCancelled;
-	Long consultationCompleted;
+	private Long consultationAll;
+	private Long consultationWaiting;
+	private Long consultationConfirmed;
+	private Long consultationCancelled;
+	private Long consultationCompleted;
 
 	public static ConsultationStatusResponse of(ConsultationStatusCommand consultationStatusCommand) {
 		return ConsultationStatusResponse.builder()

@@ -6,7 +6,6 @@ import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.Consultation
 import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.ConsultationStatusResponse;
 import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.CreateConsultationRequest;
 import org.silsagusi.joonggaemoa.domain.consultation.contorller.dto.UpdateConsultationRequest;
-import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
 import org.silsagusi.joonggaemoa.domain.consultation.service.ConsultationService;
 import org.silsagusi.joonggaemoa.domain.consultation.service.command.ConsultationCommand;
 import org.silsagusi.joonggaemoa.domain.consultation.service.command.ConsultationStatusCommand;
@@ -105,7 +104,7 @@ public class ConsultationApiController {
 	@PatchMapping("/api/agents/{agentId}/consultations/{consultationId}/status")
 	public ResponseEntity<ApiResponse<Void>> updateConsultationStatus(
 		@PathVariable("consultationId") Long consultationId,
-		@RequestParam Consultation.ConsultationStatus consultationStatus
+		@RequestParam String consultationStatus
 	) {
 		consultationService.updateConsultationStatus(consultationId, consultationStatus);
 		return ResponseEntity.ok(ApiResponse.ok());

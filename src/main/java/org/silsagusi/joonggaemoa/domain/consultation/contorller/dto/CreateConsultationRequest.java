@@ -2,8 +2,6 @@ package org.silsagusi.joonggaemoa.domain.consultation.contorller.dto;
 
 import java.time.LocalDateTime;
 
-import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
@@ -34,5 +32,5 @@ public class CreateConsultationRequest {
 
 	private String memo;
 
-	private Consultation.ConsultationStatus consultationStatus;
+	private String consultationStatus;
 }
