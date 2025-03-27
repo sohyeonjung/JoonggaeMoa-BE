@@ -26,7 +26,6 @@ public class QuestionCommand {
 			.type(question.getType())
 			.isRequired(question.getIsRequired())
 			.options(question.getOptions())
-			.isDeleted(question.getIsDeleted())
 			.build();
 	}
 }

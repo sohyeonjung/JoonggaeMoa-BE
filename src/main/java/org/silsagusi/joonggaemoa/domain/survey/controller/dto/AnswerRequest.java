@@ -1,5 +1,7 @@
 package org.silsagusi.joonggaemoa.domain.survey.controller.dto;
 
+import java.util.List;
+
 import lombok.Getter;
 
 @Getter
@@ -8,5 +10,6 @@ public class AnswerRequest {
 	private String email;
 	private String phone;
 	private Boolean consent;
-	private String answer;
+	private List<String> questions;
+	private List<String> answers;
 }

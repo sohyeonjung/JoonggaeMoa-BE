@@ -114,7 +114,8 @@ public class SurveyController {
 			answerRequest.getEmail(),
 			answerRequest.getPhone(),
 			answerRequest.getConsent(),
-			answerRequest.getAnswer()
+			answerRequest.getQuestions(),
+			answerRequest.getAnswers()
 		);
 		return ResponseEntity.ok(ApiResponse.ok());
 	}

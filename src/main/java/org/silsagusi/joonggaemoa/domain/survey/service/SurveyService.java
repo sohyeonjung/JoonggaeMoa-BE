@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.silsagusi.joonggaemoa.domain.agent.entity.Agent;
 import org.silsagusi.joonggaemoa.domain.agent.repository.AgentRepository;
-import org.silsagusi.joonggaemoa.domain.agent.service.AgentService;
 import org.silsagusi.joonggaemoa.domain.consultation.entity.Consultation;
 import org.silsagusi.joonggaemoa.domain.consultation.repository.ConsultationRepository;
 import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
@@ -13,6 +12,7 @@ import org.silsagusi.joonggaemoa.domain.customer.repository.CustomerRepository;
 import org.silsagusi.joonggaemoa.domain.customer.service.CustomerService;
 import org.silsagusi.joonggaemoa.domain.survey.entity.Answer;
 import org.silsagusi.joonggaemoa.domain.survey.entity.Question;
+import org.silsagusi.joonggaemoa.domain.survey.entity.QuestionAnswer;
 import org.silsagusi.joonggaemoa.domain.survey.entity.Survey;
 import org.silsagusi.joonggaemoa.domain.survey.repository.AnswerRepository;
 import org.silsagusi.joonggaemoa.domain.survey.repository.QuestionRepository;
@@ -35,7 +35,6 @@ public class SurveyService {
 	private final AgentRepository agentRepository;
 	private final QuestionRepository questionRepository;
 	private final CustomerService customerService;
-	private final AgentService agentService;
 	private final CustomerRepository customerRepository;
 	private final AnswerRepository answerRepository;
 	private final ConsultationRepository consultationRepository;
@@ -92,24 +91,12 @@ public class SurveyService {
 		);
 
 		List<Question> questionList = survey.getQuestionList();
-
-		//삭제 된 질문
-		for (Question question : questionList) {
-			boolean found = false;
-			for (QuestionCommand command : questionCommandList) {
-				if (question.getId().equals(command.getId())) {
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-				question.deleteQuestion();
-		}
+		List<Question> questionsTodelete = new ArrayList<>();
 
 		//바뀐 질문, 새로운 질문
 		for (QuestionCommand command : questionCommandList) {
 			//새로운 질문
-			if (command.getId() < 0 || command.getId() == null) {
+			if (command.getId() == null || command.getId() < 0) {
 				Question question = new Question(
 					survey,
 					command.getContent(),
@@ -119,27 +106,28 @@ public class SurveyService {
 				);
 				survey.getQuestionList().add(question);
 			} else {
-				//바뀐 질문
+				//바뀐 질문, 삭제 질문
+				boolean found = false;
 				for (Question question : questionList) {
 					if (question.getId().equals(command.getId())) {
-						//새롭게 만들고
-						Question question2 = new Question(
-							survey,
+						question.updateQuestion(
 							command.getContent(),
 							command.getType(),
 							command.getIsRequired(),
 							command.getOptions()
 						);
-						survey.getQuestionList().add(question2);
-						// 기존 질문의 isDeleted = true
-						question.deleteQuestion();
+						found = true;
 						break;
+					}
+					if (!found) {
+						questionsTodelete.add(question);
 					}
 				}
 			}
 
 		}
 		questionRepository.saveAll(questionList);
+		questionRepository.deleteAll(questionsTodelete);
 		surveyRepository.save(survey);
 	}
 
@@ -162,7 +150,8 @@ public class SurveyService {
 		String email,
 		String phone,
 		Boolean consent,
-		String answer
+		List<String> questions,
+		List<String> answers
 	) {
 		Survey survey = surveyRepository.findById(surveyId)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
@@ -191,11 +180,21 @@ public class SurveyService {
 		consultationRepository.save(consultation);
 
 		// 응답 추가
+		List<QuestionAnswer> questionAnswerList = new ArrayList<>();
+		for (int i = 0; i < questions.size(); i++) {
+			QuestionAnswer questionAnswer = new QuestionAnswer(
+				questions.get(i),
+				answers.get(i)
+			);
+			questionAnswerList.add(questionAnswer);
+		}
+
 		Answer newanswer = new Answer(
 			customer,
 			survey,
-			answer
+			questionAnswerList
 		);
+
 		answerRepository.save(newanswer);
 
 	}

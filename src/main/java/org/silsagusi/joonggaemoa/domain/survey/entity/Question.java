@@ -45,8 +45,6 @@ public class Question {
 	@CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "question_id"))
 	private List<String> options;
 
-	private Boolean isDeleted;
-
 	public Question(Survey survey,
 		String content,
 		String type,
@@ -58,25 +56,18 @@ public class Question {
 		this.type = type;
 		this.isRequired = isRequired;
 		this.options = options;
-		this.isDeleted = false;
 	}
 
 	public void updateQuestion(
 		String content,
 		String type,
 		Boolean isRequired,
-		List<String> options,
-		Boolean isDeleted
+		List<String> options
 	) {
 		this.content = content;
 		this.type = type;
 		this.isRequired = isRequired;
 		this.options = options;
-		this.isDeleted = isDeleted;
-	}
-
-	public void deleteQuestion() {
-		this.isDeleted = true;
 	}
 
 }

@@ -1,8 +1,12 @@
 package org.silsagusi.joonggaemoa.domain.survey.entity;
 
+import java.util.List;
+
 import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -33,13 +37,14 @@ public class Answer {
 	@JoinColumn(name = "survey_id")
 	private Survey survey;
 
-	@Column(columnDefinition = "TEXT")
-	private String answer;
+	@ElementCollection
+	@CollectionTable(name = "question_answers", joinColumns = @JoinColumn(name = "answer_id"))
+	private List<QuestionAnswer> answer;
 
 	public Answer(
 		Customer customer,
 		Survey survey,
-		String answer
+		List<QuestionAnswer> answer
 	) {
 		this.customer = customer;
 		this.survey = survey;

@@ -16,7 +16,6 @@ public class QuestionResponse {
 	private String type;
 	private Boolean isRequired;
 	private List<String> options;
-	private Boolean isDeleted;
 
 	public static QuestionResponse of(QuestionCommand questionCommand) {
 		return QuestionResponse.builder()
@@ -26,7 +25,6 @@ public class QuestionResponse {
 			.type(questionCommand.getType())
 			.isRequired(questionCommand.getIsRequired())
 			.options(questionCommand.getOptions())
-			.isDeleted(questionCommand.getIsDeleted())
 			.build();
 	}
 }

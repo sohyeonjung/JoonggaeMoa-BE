@@ -1,5 +1,7 @@
 package org.silsagusi.joonggaemoa.domain.survey.service.command;
 
+import java.util.List;
+
 import org.silsagusi.joonggaemoa.domain.customer.service.command.CustomerCommand;
 import org.silsagusi.joonggaemoa.domain.survey.entity.Answer;
 
@@ -11,13 +13,16 @@ import lombok.Getter;
 public class AnswerCommand {
 	private CustomerCommand customer;
 	private SurveyCommand survey;
-	private String answer;
+	private List<QuestionAnswerCommand> answers;
 
 	public static AnswerCommand of(Answer answer) {
+		List<QuestionAnswerCommand> questionAnswerCommandList = answer.getAnswer().stream()
+			.map(it -> QuestionAnswerCommand.of(it)).toList();
+
 		return AnswerCommand.builder()
 			.customer(CustomerCommand.of(answer.getCustomer()))
 			.survey(SurveyCommand.of(answer.getSurvey()))
-			.answer(answer.getAnswer())
+			.answers(questionAnswerCommandList)
 			.build();
 	}
 }
