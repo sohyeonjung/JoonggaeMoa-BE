@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
+import org.silsagusi.joonggaemoa.global.api.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -110,7 +112,6 @@ public class JwtProvider {
 		} catch (IllegalArgumentException e) {
 			log.warn("JWT claims string is empty: {}", e.getMessage());
 		}
-
-		return false;
+		throw new CustomException(ErrorCode.UNAUTHORIZED);
 	}
 }
