@@ -91,7 +91,7 @@ public class SurveyService {
 		);
 
 		List<Question> questionList = survey.getQuestionList();
-		List<Question> questionsTodelete = new ArrayList<>();
+List<Question> questionsToDelete = new ArrayList<>();
 
 		//바뀐 질문, 새로운 질문
 		for (QuestionCommand command : questionCommandList) {
