@@ -68,7 +68,7 @@ public class SmsBatchJogConfig {
 			.name("reservedMessageReader")
 			.pageSize(CHUNK_SIZE)
 			.methodName("findPendingMessages")
-			.arguments(LocalDateTime.now(), LocalDateTime.now().plusMinutes(1))
+			.arguments(LocalDateTime.now(), LocalDateTime.now().plusHours(1))
 			.repository(reservedMessageRepository)
 			.sorts(Map.of("id", Sort.Direction.DESC))
 			.build();
@@ -95,7 +95,7 @@ public class SmsBatchJogConfig {
 				String text = reservedMessage.getContent();
 				LocalDateTime sendAt = reservedMessage.getSendAt();
 
-				smsUtil.sendMessage(agent.getPhone(), customer.getPhone(), text, sendAt);
+				// smsUtil.sendMessage(agent.getPhone(), customer.getPhone(), text, sendAt);
 
 				return new Message(reservedMessage.getCustomer(), reservedMessage.getContent());
 			} catch (Exception e) {
