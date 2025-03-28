@@ -72,10 +72,13 @@ public class SurveyService {
 
 	@Transactional
 	public void deleteSurvey(Long surveyId) {
-		questionRepository.deleteBySurvey_Id(surveyId);
-		surveyRepository.deleteById(surveyId);
+		Survey survey = surveyRepository.findById(surveyId)
+				.orElseThrow(()-> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+		questionRepository.deleteAll(survey.getQuestionList());
+		surveyRepository.delete(survey);
 	}
 
+	@Transactional
 	public void updateSurvey(
 		Long surveyId,
 		String title,
@@ -90,45 +93,25 @@ public class SurveyService {
 			(description == null || description.isBlank()) ? survey.getDescription() : description
 		);
 
-		List<Question> questionList = survey.getQuestionList();
-		List<Question> questionsToDelete = new ArrayList<>();
+		questionRepository.deleteAll(survey.getQuestionList());
+		survey.getQuestionList().clear();
 
-		//바뀐 질문, 새로운 질문
-		for (QuestionCommand command : questionCommandList) {
-			//새로운 질문
-			if (command.getId() == null || command.getId() < 0) {
-				Question question = new Question(
+
+		List<Question> udpateQuestions = questionCommandList.stream()
+			.map(it->{
+				return new Question(
 					survey,
-					command.getContent(),
-					command.getType(),
-					command.getIsRequired(),
-					command.getOptions()
+					it.getContent(),
+					it.getType(),
+					it.getIsRequired(),
+					it.getOptions()
 				);
-				survey.getQuestionList().add(question);
-			} else {
-				//바뀐 질문, 삭제 질문
-				boolean found = false;
-				for (Question question : questionList) {
-					if (question.getId().equals(command.getId())) {
-						question.updateQuestion(
-							command.getContent(),
-							command.getType(),
-							command.getIsRequired(),
-							command.getOptions()
-						);
-						found = true;
-						break;
-					}
-					if (!found) {
-						questionsToDelete.add(question);
-					}
-				}
-			}
+			}).toList();
 
-		}
-		questionRepository.saveAll(questionList);
-		questionRepository.deleteAll(questionsToDelete);
+		survey.getQuestionList().addAll(udpateQuestions);
+		questionRepository.saveAll(udpateQuestions);
 		surveyRepository.save(survey);
+
 	}
 
 	public List<SurveyCommand> getAllSurveys() {
