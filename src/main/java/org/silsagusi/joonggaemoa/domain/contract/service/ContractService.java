@@ -1,9 +1,12 @@
 package org.silsagusi.joonggaemoa.domain.contract.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.silsagusi.joonggaemoa.domain.contract.entity.Contract;
 import org.silsagusi.joonggaemoa.domain.contract.repository.ContractRepository;
+import org.silsagusi.joonggaemoa.domain.contract.service.command.ContractCommand;
 import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
 import org.silsagusi.joonggaemoa.domain.customer.repository.CustomerRepository;
 import org.silsagusi.joonggaemoa.global.api.exception.CustomException;
@@ -42,5 +45,14 @@ public class ContractService {
 		contractRepository.save(contract);
 	}
 
+	public List<ContractCommand> getAllContracts() {
+		List<Contract> contractList = contractRepository.findAll();
+		return contractList.stream().map(it->ContractCommand.of(it)).toList();
+	}
 
+	public ContractCommand getContractById(Long contractId) {
+		Contract contract = contractRepository.findById(contractId)
+			.orElseThrow(()->new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+		return ContractCommand.of(contract);
+	}
 }
