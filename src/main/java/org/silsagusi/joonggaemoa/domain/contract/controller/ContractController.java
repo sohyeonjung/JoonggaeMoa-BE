@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.silsagusi.joonggaemoa.domain.contract.controller.dto.ContractResponse;
 import org.silsagusi.joonggaemoa.domain.contract.controller.dto.CreateContractRequest;
+import org.silsagusi.joonggaemoa.domain.contract.controller.dto.UpdateContractRequest;
 import org.silsagusi.joonggaemoa.domain.contract.service.ContractService;
 import org.silsagusi.joonggaemoa.domain.contract.service.command.ContractCommand;
 import org.silsagusi.joonggaemoa.global.api.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,6 +54,21 @@ public class ContractController {
 		ContractCommand contractCommand = contractService.getContractById(contractId);
 		return ResponseEntity.ok(ApiResponse.ok(ContractResponse.of(contractCommand)));
 	}
+
+	@PatchMapping("/api/agents/{agentId}/contracts/{contractId}")
+	public ResponseEntity<ApiResponse<Void>> updateContract(
+		@PathVariable("contractId") Long contractId,
+		@RequestBody UpdateContractRequest updateContractRequest
+	){
+		contractService.updateContract(
+			contractId,
+			updateContractRequest.getCreatedAt(),
+			updateContractRequest.getExpiredAt(),
+			updateContractRequest.getUrl()
+		);
+		return ResponseEntity.ok(ApiResponse.ok());
+	}
+
 
 
 

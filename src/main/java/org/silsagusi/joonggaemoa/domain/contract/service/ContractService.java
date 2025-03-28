@@ -55,4 +55,21 @@ public class ContractService {
 			.orElseThrow(()->new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
 		return ContractCommand.of(contract);
 	}
+
+	public void updateContract(
+		Long contractId,
+		LocalDate createdAt,
+		LocalDate expiredAt,
+		String url
+	) {
+		Contract contract = contractRepository.findById(contractId)
+			.orElseThrow(()->new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
+
+		contract.update(
+			(createdAt == null) ? contract.getCreatedAt() : createdAt,
+			(expiredAt == null) ? contract.getExpiredAt() :expiredAt,
+			(url == null || url.isBlank()) ? contract.getUrl() : url
+		);
+		contractRepository.save(contract);
+	}
 }

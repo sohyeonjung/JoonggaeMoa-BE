@@ -56,4 +56,14 @@ public class Contract {
 		this.expiredAt = expiredAt;
 		this.url = url;
 	}
+
+	public void update(
+		LocalDate createdAt,
+		LocalDate expiredAt,
+		String url
+	) {
+		this.createdAt = createdAt;
+		this.expiredAt = expiredAt;
+		this.url = url;
+	}
 }
