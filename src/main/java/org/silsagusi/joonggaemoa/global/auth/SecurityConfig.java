@@ -63,8 +63,9 @@ public class SecurityConfig {
 					refreshTokenStore))
 			.addFilterBefore(new JwtAuthorizationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/api/agent/login", "/api/agent/signup").permitAll()
-				.anyRequest().authenticated()
+				// .requestMatchers("/api/agent/login", "/api/agent/signup").permitAll()
+				// .anyRequest().authenticated()
+				.anyRequest().permitAll()
 			)
 			.exceptionHandling(configurer -> configurer
 				.authenticationEntryPoint(customAuthenticationEntryPointHandler)
