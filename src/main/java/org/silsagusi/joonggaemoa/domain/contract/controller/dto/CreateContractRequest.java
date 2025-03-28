@@ -2,7 +2,6 @@ package org.silsagusi.joonggaemoa.domain.contract.controller.dto;
 
 import java.time.LocalDate;
 
-import jakarta.websocket.server.ServerEndpoint;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,5 +12,4 @@ public class CreateContractRequest {
 	private Long tenantId;
 	private LocalDate createdAt;
 	private LocalDate expiredAt;
-	private String url;
 }

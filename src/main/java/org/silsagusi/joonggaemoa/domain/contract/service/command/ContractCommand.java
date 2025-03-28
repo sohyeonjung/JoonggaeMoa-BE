@@ -6,7 +6,9 @@ import org.silsagusi.joonggaemoa.domain.contract.entity.Contract;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 @Builder
 public class ContractCommand {
