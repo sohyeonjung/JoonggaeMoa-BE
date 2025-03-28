@@ -9,6 +9,7 @@ import org.silsagusi.joonggaemoa.domain.contract.service.ContractService;
 import org.silsagusi.joonggaemoa.domain.contract.service.command.ContractCommand;
 import org.silsagusi.joonggaemoa.global.api.ApiResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import retrofit2.http.Path;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,11 +72,13 @@ public class ContractController {
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
 
-
-
-
-
-
+	@DeleteMapping("/api/agents/{agentId}/contracts/{contractId}")
+	public ResponseEntity<ApiResponse<Void>> deleteContract(
+		@PathVariable("contractId") Long contractId
+	){
+		contractService.deleteContract(contractId);
+		return ResponseEntity.ok(ApiResponse.ok());
+	}
 
 
 }
