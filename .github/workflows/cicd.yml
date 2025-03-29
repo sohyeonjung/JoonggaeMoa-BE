@@ -115,14 +115,14 @@ jobs:
             #sudo docker rm $OLD_CONTAINER_ID 2>/dev/null || true
             
             # 새로운 컨테이너 pull, run
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/docker-joonggaemoa
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/docker-joonggaemoa 
             sudo docker run -d --name new-joonggaemoa -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=prod \
-              ${{ secrets.DOCKER_USERNAME }}/docker-joonggaemoa
+              ${{ secrets.DOCKER_USERNAME }}/docker-joonggaemoa 
             
             # log 
             sleep 10
-            sudo docker logs new-joonggaemoa
+            sudo docker logs new-joonggaemoa 
             
             # 컨테이너 실행 확인
             if ! sudo docker ps | grep -q new-joonggaemoa; then
@@ -133,7 +133,7 @@ jobs:
               if [ -n "$OLD_CONTAINER_ID" ]; then
                 DEPLOY_STATUS="failed"
                 echo "Restarting old container: $OLD_CONTAINER_ID"
-                sudo docker start $OLD_CONTAINER_ID
+                sudo docker start $OLD_CONTAINER_ID 
             
                 # 기존 컨테이너 재시작 확인
                 sleep 10
@@ -150,9 +150,9 @@ jobs:
               fi
             else
               # 컨테이너, 이미지 정리
-              sudo docker rm $OLD_CONTAINER_ID
-              sudo docker rename new-joonggaemoa joonggaemoa
-              sudo docker image prune -f
+              sudo docker rm $OLD_CONTAINER_ID 2>/dev/null || true
+              sudo docker rename new-joonggaemoa joonggaemoa || exit 1
+              sudo docker image prune -f 2>/dev/null || true
             fi
 
             echo "After Deploy:"
