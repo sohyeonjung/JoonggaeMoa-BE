@@ -9,12 +9,12 @@ import org.silsagusi.joonggaemoa.domain.message.service.command.MessageCommand;
 import org.silsagusi.joonggaemoa.global.api.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,23 +23,25 @@ public class MessageController {
 
 	private final MessageService messageService;
 
-	@GetMapping("/api/agents/{agentId}/messages")
+	@GetMapping("/api/messages")
 	public ResponseEntity<ApiResponse<List<MessageResponse>>> getMessage(
-		@PathVariable Long agentId,
+		HttpServletRequest request,
 		@RequestParam(required = false) Long lastMessageId
 	) {
-		List<MessageCommand> messageCommands = messageService.getMessage(agentId, lastMessageId);
+		List<MessageCommand> messageCommands = messageService.getMessage(
+			(Long)request.getAttribute("agentId"),
+			lastMessageId
+		);
 
 		List<MessageResponse> responses = messageCommands.stream()
-			.map(command -> MessageResponse.of(command))
+			.map(MessageResponse::of)
 			.toList();
 
 		return ResponseEntity.ok(ApiResponse.ok(responses));
 	}
 
-	@PostMapping("/api/agents/{agentId}/messages")
+	@PostMapping("/api/messages")
 	public ResponseEntity<ApiResponse<Void>> reserveMessage(
-		@PathVariable Long agentId,
 		@RequestBody MessageRequest request
 	) {
 		messageService.reserveMessage(request.getContent(), request.getSendAt(), request.getCustomerIdList());

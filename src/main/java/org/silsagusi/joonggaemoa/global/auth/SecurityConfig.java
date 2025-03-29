@@ -56,16 +56,20 @@ public class SecurityConfig {
 			.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
-			.cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
 			.sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.addFilter(
+			.cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
+
+			.addFilterAt(
 				new JwtAuthenticationFilter(authenticationManager(customUserDetailsService), jwtProvider, objectMapper,
-					refreshTokenStore))
+					refreshTokenStore), UsernamePasswordAuthenticationFilter.class)
 			.addFilterBefore(new JwtAuthorizationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
+
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/api/agent/login", "/api/agent/signup").permitAll()
+				.requestMatchers("/api/agents/login", "/api/agents/signup", "/api/refresh-token",
+					"/swagger-ui/**", "/v3/api-docs/**").permitAll()
 				.anyRequest().authenticated()
 			)
+
 			.exceptionHandling(configurer -> configurer
 				.authenticationEntryPoint(customAuthenticationEntryPointHandler)
 				.accessDeniedHandler(customAccessDeniedHandler)
@@ -88,6 +92,7 @@ public class SecurityConfig {
 
 		corsConfiguration.addAllowedHeader("*");
 		corsConfiguration.addExposedHeader("Authorization");
+		corsConfiguration.addExposedHeader("Agentid");
 		corsConfiguration.setAllowCredentials(true);
 
 		corsConfiguration.setAllowedOrigins(
