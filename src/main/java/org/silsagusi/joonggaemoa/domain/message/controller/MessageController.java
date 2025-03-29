@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.silsagusi.joonggaemoa.domain.message.controller.dto.MessageRequest;
 import org.silsagusi.joonggaemoa.domain.message.controller.dto.MessageResponse;
+import org.silsagusi.joonggaemoa.domain.message.controller.dto.ReservedMessageResponse;
 import org.silsagusi.joonggaemoa.domain.message.service.MessageService;
 import org.silsagusi.joonggaemoa.domain.message.service.command.MessageCommand;
+import org.silsagusi.joonggaemoa.domain.message.service.command.ReservedMessageCommand;
 import org.silsagusi.joonggaemoa.global.api.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,5 +49,23 @@ public class MessageController {
 		messageService.reserveMessage(request.getContent(), request.getSendAt(), request.getCustomerIdList());
 
 		return ResponseEntity.ok(ApiResponse.ok());
+	}
+
+	@GetMapping("/api/reserved-message")
+	public ResponseEntity<ApiResponse<List<ReservedMessageResponse>>> getReservedMessage(
+		HttpServletRequest request,
+		@RequestParam(required = false) Long lastMessageId
+	) {
+
+		List<ReservedMessageCommand> commands = messageService.getReservedMessage(
+			(Long)request.getAttribute("agentId"),
+			lastMessageId
+		);
+
+		List<ReservedMessageResponse> responses = commands.stream()
+			.map(ReservedMessageResponse::of)
+			.toList();
+
+		return ResponseEntity.ok(ApiResponse.ok(responses));
 	}
 }
