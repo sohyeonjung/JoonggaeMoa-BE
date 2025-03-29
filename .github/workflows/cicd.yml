@@ -150,7 +150,7 @@ jobs:
               fi
             else
               # 컨테이너, 이미지 정리
-              sudo docker rm $OLD_CONTAINER_ID 2>/dev/null || true
+              sudo docker rm $OLD_CONTAINER_ID || exit 1
               sudo docker rename new-joonggaemoa joonggaemoa || exit 1
               sudo docker image prune -f 2>/dev/null || true
             fi
