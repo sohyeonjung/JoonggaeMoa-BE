@@ -28,8 +28,7 @@ public class ContractController {
 
 	private final ContractService contractService;
 
-	@PostMapping(value = "/api/agents/{agentId}/contracts",
-		consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(value = "/api/contracts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<ApiResponse<String>> createContract(
 		@RequestPart("contractData") CreateContractRequest createContractRequest,
 		@RequestPart("file") MultipartFile file
@@ -44,15 +43,15 @@ public class ContractController {
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
 
-	@GetMapping("/api/agents/{agentId}/contracts")
+	@GetMapping("/api/contracts")
 	public ResponseEntity<ApiResponse<List<ContractResponse>>> getAllContracts() {
 		List<ContractCommand> contractCommandList = contractService.getAllContracts();
 		List<ContractResponse> contractResponseList = contractCommandList.stream()
-			.map(it -> ContractResponse.of(it)).toList();
+			.map(ContractResponse::of).toList();
 		return ResponseEntity.ok(ApiResponse.ok(contractResponseList));
 	}
 
-	@GetMapping("/api/agents/{agentId}/contracts/{contractId}")
+	@GetMapping("/api/contracts/{contractId}")
 	public ResponseEntity<ApiResponse<ContractResponse>> getContract(
 		@PathVariable("contractId") Long contractId
 	) throws IOException {
@@ -60,7 +59,7 @@ public class ContractController {
 		return ResponseEntity.ok(ApiResponse.ok(ContractResponse.of(contractCommand)));
 	}
 
-	@PatchMapping(value = "/api/agents/{agentId}/contracts/{contractId}",
+	@PatchMapping(value = "/api/contracts/{contractId}",
 		consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<ApiResponse<Void>> updateContract(
 		@PathVariable("contractId") Long contractId,
@@ -76,12 +75,11 @@ public class ContractController {
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
 
-	@DeleteMapping("/api/agents/{agentId}/contracts/{contractId}")
+	@DeleteMapping("/api/contracts/{contractId}")
 	public ResponseEntity<ApiResponse<Void>> deleteContract(
 		@PathVariable("contractId") Long contractId
 	) {
 		contractService.deleteContract(contractId);
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
-
 }
