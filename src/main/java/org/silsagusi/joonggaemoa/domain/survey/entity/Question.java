@@ -2,8 +2,6 @@ package org.silsagusi.joonggaemoa.domain.survey.entity;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -17,7 +15,6 @@ import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = "questions")
@@ -29,10 +26,8 @@ public class Question {
 	@Column(name = "question_id")
 	private Long id;
 
-	@JsonIgnore
-	@ToString.Exclude
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "survey_id", referencedColumnName = "survey_id")
+	@JoinColumn(name = "survey_id")
 	private Survey survey;
 
 	private String content;

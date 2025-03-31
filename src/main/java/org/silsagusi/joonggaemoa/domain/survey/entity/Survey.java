@@ -39,8 +39,6 @@ public class Survey extends BaseEntity {
 	@OneToMany(mappedBy = "survey", fetch = FetchType.LAZY)
 	private List<Question> questionList = List.of();
 
-	// createdAt - baseEntity에서
-
 	public Survey(Agent agent, String title, String description, List<Question> questionList) {
 		this.agent = agent;
 		this.title = title;

@@ -6,6 +6,8 @@ import org.silsagusi.joonggaemoa.domain.customer.entity.Customer;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,6 +46,7 @@ public class Agent {
 
 	private String businessNo;
 
+	@Enumerated(EnumType.STRING)
 	private Role role;
 
 	enum Role {
