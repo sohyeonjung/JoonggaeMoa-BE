@@ -102,14 +102,29 @@ public class SurveyController {
 		return ResponseEntity.ok(ApiResponse.ok(SurveyResponse.of(surveyCommand)));
 	}
 
-	@PostMapping("/api/surveys/{surveyId}/submit")
+	@GetMapping("/api/surveys/answer")
+	public ResponseEntity<ApiResponse<List<AnswerResponse>>> getSurveyAnswers() {
+		List<AnswerCommand> answerCommandList = surveyService.getAllAnswers();
+		List<AnswerResponse> answerResponseList = answerCommandList.stream()
+			.map(it -> AnswerResponse.of(it)).toList();
+		return ResponseEntity.ok(ApiResponse.ok(answerResponseList));
+	}
+
+	// 고객용 api
+	@GetMapping("/api/customers/surveys/{surveyId}")
+	public ResponseEntity<ApiResponse<SurveyResponse>> getSurveyForCustomer(
+		@PathVariable("surveyId") Long surveyId
+	) {
+		SurveyCommand surveyCommand = surveyService.findById(surveyId);
+		return ResponseEntity.ok(ApiResponse.ok(SurveyResponse.of(surveyCommand)));
+	}
+
+	@PostMapping("/api/customers/surveys/{surveyId}/submit")
 	public ResponseEntity<ApiResponse<Void>> submitSurveyAnswer(
-		HttpServletRequest request,
 		@PathVariable("surveyId") Long surveyId,
 		@RequestBody AnswerRequest answerRequest
 	) {
 		surveyService.submitSurveyAnswer(
-			(Long)request.getAttribute("agentId"),
 			surveyId,
 			answerRequest.getName(),
 			answerRequest.getEmail(),
@@ -120,13 +135,4 @@ public class SurveyController {
 		);
 		return ResponseEntity.ok(ApiResponse.ok());
 	}
-
-	@GetMapping("/api/surveys/answer")
-	public ResponseEntity<ApiResponse<List<AnswerResponse>>> getSurveyAnswers() {
-		List<AnswerCommand> answerCommandList = surveyService.getAllAnswers();
-		List<AnswerResponse> answerResponseList = answerCommandList.stream()
-			.map(it -> AnswerResponse.of(it)).toList();
-		return ResponseEntity.ok(ApiResponse.ok(answerResponseList));
-	}
-
 }

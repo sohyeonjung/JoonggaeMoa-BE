@@ -45,6 +45,15 @@ public class SecurityConfig {
 	private final CustomUserDetailsService customUserDetailsService;
 	private final RefreshTokenStore refreshTokenStore;
 
+	private static final String[] AUTH_WHITELIST = {
+		"/api/agents/login",
+		"/api/agents/signup",
+		"/api/refresh-token",
+		"/api/customers/**",
+		"/swagger-ui/**",
+		"/v3/api-docs/**"
+	};
+
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -65,8 +74,7 @@ public class SecurityConfig {
 			.addFilterBefore(new JwtAuthorizationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)
 
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/api/agents/login", "/api/agents/signup", "/api/refresh-token",
-					"/swagger-ui/**", "/v3/api-docs/**").permitAll()
+				.requestMatchers(AUTH_WHITELIST).permitAll()
 				.anyRequest().authenticated()
 			)
 
