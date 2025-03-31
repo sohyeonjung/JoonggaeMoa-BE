@@ -96,32 +96,30 @@ public class SurveyService {
 		questionRepository.deleteAll(survey.getQuestionList());
 		survey.getQuestionList().clear();
 
-		List<Question> udpateQuestions = questionCommandList.stream()
-			.map(it -> {
-				return new Question(
+		List<Question> updateQuestions = questionCommandList.stream()
+			.map(it -> new Question(
 					survey,
 					it.getContent(),
 					it.getType(),
 					it.getIsRequired(),
 					it.getOptions()
-				);
-			}).toList();
+				)
+			).toList();
 
-		survey.getQuestionList().addAll(udpateQuestions);
-		questionRepository.saveAll(udpateQuestions);
+		survey.getQuestionList().addAll(updateQuestions);
+		questionRepository.saveAll(updateQuestions);
 		surveyRepository.save(survey);
 
 	}
 
 	public List<SurveyCommand> getAllSurveys() {
 		List<Survey> surveyList = surveyRepository.findAll();
-		return surveyList.stream().map(it -> SurveyCommand.of(it)).toList();
+		return surveyList.stream().map(SurveyCommand::of).toList();
 	}
 
 	public SurveyCommand findById(Long surveyId) {
 		Survey survey = surveyRepository.findById(surveyId)
 			.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_ELEMENT));
-		;
 		return SurveyCommand.of(survey);
 	}
 
@@ -180,6 +178,6 @@ public class SurveyService {
 
 	public List<AnswerCommand> getAllAnswers() {
 		List<Answer> answerList = answerRepository.findAll();
-		return answerList.stream().map(it -> AnswerCommand.of(it)).toList();
+		return answerList.stream().map(AnswerCommand::of).toList();
 	}
 }

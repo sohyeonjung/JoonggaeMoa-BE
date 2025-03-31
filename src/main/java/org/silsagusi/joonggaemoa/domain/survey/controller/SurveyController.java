@@ -90,7 +90,7 @@ public class SurveyController {
 	public ResponseEntity<ApiResponse<List<SurveyResponse>>> getAllSurveys() {
 		List<SurveyCommand> surveyCommandList = surveyService.getAllSurveys();
 		List<SurveyResponse> surveyResponseList = surveyCommandList.stream()
-			.map(it -> SurveyResponse.of(it)).toList();
+			.map(SurveyResponse::of).toList();
 		return ResponseEntity.ok(ApiResponse.ok(surveyResponseList));
 	}
 
@@ -106,7 +106,7 @@ public class SurveyController {
 	public ResponseEntity<ApiResponse<List<AnswerResponse>>> getSurveyAnswers() {
 		List<AnswerCommand> answerCommandList = surveyService.getAllAnswers();
 		List<AnswerResponse> answerResponseList = answerCommandList.stream()
-			.map(it -> AnswerResponse.of(it)).toList();
+			.map(AnswerResponse::of).toList();
 		return ResponseEntity.ok(ApiResponse.ok(answerResponseList));
 	}
 
