@@ -17,7 +17,7 @@ public class ScrapeStatusDataProvider {
 	private final ScrapeStatusRepository scrapeStatusRepository;
 
 	public ScrapeStatus getPendingScrapeStatus(Platform platform, ScrapeTargetType scrapeTargetType) {
-		return scrapeStatusRepository.findFirstByPlatformAndTargetTypeAndStatusOrderByIdAsc(
+		return scrapeStatusRepository.findNextWithRegion(
 			platform, scrapeTargetType, ScrapeStatusType.PENDING);
 	}
 
