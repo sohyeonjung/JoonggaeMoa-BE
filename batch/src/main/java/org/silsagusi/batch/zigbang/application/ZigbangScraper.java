@@ -4,11 +4,9 @@ import java.util.List;
 import java.util.Random;
 
 import org.silsagusi.batch.application.ArticleMapper;
-import org.silsagusi.batch.application.ArticleValidator;
 import org.silsagusi.batch.application.ComplexMapper;
-import org.silsagusi.batch.application.ComplexValidator;
-import org.silsagusi.batch.infrastructure.dataprovider.ArticleDataProvider;
 import org.silsagusi.batch.infrastructure.dataprovider.ComplexDataProvider;
+import org.silsagusi.batch.infrastructure.dataprovider.ScrapePagePersistenceService;
 import org.silsagusi.batch.zigbang.infrastructure.ZigBangApiClient;
 import org.silsagusi.batch.zigbang.infrastructure.dto.ZigBangDanjiResponse;
 import org.silsagusi.batch.zigbang.infrastructure.dto.ZigBangItemCatalogResponse;
@@ -33,12 +31,10 @@ public class ZigbangScraper {
 	private final Random random = new Random();
 
 	private final ZigBangApiClient zigBangApiClient;
-	private final ArticleDataProvider articleDataProvider;
 	private final ComplexDataProvider complexDataProvider;
+	private final ScrapePagePersistenceService pagePersistenceService;
 	private final ComplexMapper complexMapper;
 	private final ArticleMapper articleMapper;
-	private final ArticleValidator articleValidator;
-	private final ComplexValidator complexValidator;
 
 	public ScrapeStatus scrapComplex(ScrapeStatus status) throws InterruptedException {
 		Region region = status.getRegion();
@@ -51,17 +47,18 @@ public class ZigbangScraper {
 
 				List<Complex> complexes = zigBangDanjiResponse.getFiltered().stream()
 					.map(response -> complexMapper.toEntity(response, region))
-					.filter(complexValidator::validateExist)
 					.toList();
 
-				complexDataProvider.saveComplexes(complexes);
+				pagePersistenceService.saveComplexPage(status.getId(), complexes, page + 1);
+				status.checkpoint(page + 1);
 			} catch (Exception e) {
 				log.error(
 					"스크래핑 실패: {} - {}. region_id: {} - {}페이지. 좌표값: {},{}. 에러 내용: {}",
 					Platform.ZIGBANG, ScrapeTargetType.COMPLEX, region.getId(), page,
 					region.getCenterLat(), region.getCenterLon(), e.getMessage(), e);
 				Thread.sleep(600_000);
-				return status.failed(page);
+				status.markFailed();
+				return status;
 			}
 			Thread.sleep((3000 + random.nextInt(4000)));
 		}
@@ -85,19 +82,22 @@ public class ZigbangScraper {
 							String.valueOf(response.getAreaDanjiId()));
 						return articleMapper.toEntity(response, region, complex);
 					})
-					.filter(articleValidator::validateExist)
 					.toList();
 
-				articleDataProvider.saveArticles(articles);
+				pagePersistenceService.saveArticlePage(status.getId(), articles, offset + SCRAPE_ARTICLE_LIMIT);
+				status.checkpoint(offset + SCRAPE_ARTICLE_LIMIT);
 
-				hasMore = zigBangItemCatalogResponse.getCount() >= offset;
+				hasMore = zigBangItemCatalogResponse.getCount() != null
+					&& offset + SCRAPE_ARTICLE_LIMIT < zigBangItemCatalogResponse.getCount()
+					&& !zigBangItemCatalogResponse.getList().isEmpty();
 			} catch (Exception e) {
 				log.error(
 					"스크래핑 실패: {} - {}. region_id: {} - {}페이지. 좌표값: {},{}. 에러 내용: {}",
 					Platform.ZIGBANG, ScrapeTargetType.ARTICLE, region.getId(), offset,
 					region.getCenterLat(), region.getCenterLon(), e.getMessage(), e);
 				Thread.sleep(600_000);
-				return status.failed(offset);
+				status.markFailed();
+				return status;
 			}
 			offset += SCRAPE_ARTICLE_LIMIT;
 			Thread.sleep((3000 + random.nextInt(4000)));

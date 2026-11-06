@@ -5,6 +5,7 @@ import org.silsagusi.core.domain.article.enums.Platform;
 import org.silsagusi.core.domain.article.enums.ScrapeStatusType;
 import org.silsagusi.core.domain.article.enums.ScrapeTargetType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 public interface ScrapeStatusRepository extends JpaRepository<ScrapeStatus, Long> {
 
@@ -12,6 +13,7 @@ public interface ScrapeStatusRepository extends JpaRepository<ScrapeStatus, Long
 	//
 	// List<ScrapeStatus> findTop1ByCompletedFalseOrderByIdAsc();
 
+	@EntityGraph(attributePaths = "region")
 	ScrapeStatus findFirstByPlatformAndTargetTypeAndStatusOrderByIdAsc(Platform platform,
 		ScrapeTargetType targetType, ScrapeStatusType status);
 
