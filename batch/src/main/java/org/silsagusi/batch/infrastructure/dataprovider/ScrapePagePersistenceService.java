@@ -1,6 +1,9 @@
 package org.silsagusi.batch.infrastructure.dataprovider;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.silsagusi.batch.infrastructure.repository.ArticleRepository;
 import org.silsagusi.batch.infrastructure.repository.ComplexRepository;
@@ -27,22 +30,30 @@ public class ScrapePagePersistenceService {
 
     @Transactional(transactionManager = "dataTransactionManager")
     public void saveArticlePage(Long statusId, List<Article> articles, int nextCursor) {
-        for (Article article : articles) {
-            if (article.getArticleCode() != null
-                && articleRepository.findFirstByArticleCode(article.getArticleCode()).isEmpty()) {
-                articleRepository.save(article);
-            }
+        Set<String> codes = articles.stream().map(Article::getArticleCode)
+            .filter(code -> code != null).collect(Collectors.toSet());
+        Set<String> existing = codes.isEmpty() ? Set.of() : articleRepository.findExistingCodes(codes);
+        Set<String> seen = new java.util.HashSet<>(existing);
+        List<Article> newArticles = articles.stream()
+            .filter(article -> article.getArticleCode() != null && seen.add(article.getArticleCode()))
+            .toList();
+        if (!newArticles.isEmpty()) {
+            articleRepository.saveAll(newArticles);
         }
         checkpoint(statusId, nextCursor);
     }
 
     @Transactional(transactionManager = "dataTransactionManager")
     public void saveComplexPage(Long statusId, List<Complex> complexes, int nextCursor) {
-        for (Complex complex : complexes) {
-            if (complex.getComplexCode() != null
-                && complexRepository.findFirstByComplexCode(complex.getComplexCode()).isEmpty()) {
-                complexRepository.save(complex);
-            }
+        Set<String> codes = complexes.stream().map(Complex::getComplexCode)
+            .filter(code -> code != null).collect(Collectors.toSet());
+        Set<String> existing = codes.isEmpty() ? Set.of() : complexRepository.findExistingCodes(codes);
+        Set<String> seen = new java.util.HashSet<>(existing);
+        List<Complex> newComplexes = complexes.stream()
+            .filter(complex -> complex.getComplexCode() != null && seen.add(complex.getComplexCode()))
+            .toList();
+        if (!newComplexes.isEmpty()) {
+            complexRepository.saveAll(newComplexes);
         }
         checkpoint(statusId, nextCursor);
     }
