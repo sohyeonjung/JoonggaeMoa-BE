@@ -14,6 +14,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionAttribute;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,8 @@ public class NaverLandComplexStepConfig {
 	public Step naverLandComplexStep() {
 		return new StepBuilder("naverLandComplexStep", jobRepository)
 			.<ScrapeStatus, ScrapeStatus>chunk(1, transactionManager)
+			// Outer chunk does not keep a business DB transaction open while calling remote APIs.
+			.transactionAttribute(new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
 			.reader(naverLandComplexReader())
 			.processor(naverLandComplexProcessor())
 			.writer(naverLandComplexWriter())
