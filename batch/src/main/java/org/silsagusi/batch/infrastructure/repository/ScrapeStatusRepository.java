@@ -5,6 +5,8 @@ import org.silsagusi.core.domain.article.enums.Platform;
 import org.silsagusi.core.domain.article.enums.ScrapeStatusType;
 import org.silsagusi.core.domain.article.enums.ScrapeTargetType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ScrapeStatusRepository extends JpaRepository<ScrapeStatus, Long> {
 
@@ -12,8 +14,9 @@ public interface ScrapeStatusRepository extends JpaRepository<ScrapeStatus, Long
 	//
 	// List<ScrapeStatus> findTop1ByCompletedFalseOrderByIdAsc();
 
-	ScrapeStatus findFirstByPlatformAndTargetTypeAndStatusOrderByIdAsc(Platform platform,
-		ScrapeTargetType targetType, ScrapeStatusType status);
+	@Query("select s from ScrapeStatus s join fetch s.region where s.platform = :platform and s.targetType = :targetType and s.status = :status order by s.id asc limit 1")
+	ScrapeStatus findNextWithRegion(@Param("platform") Platform platform,
+		@Param("targetType") ScrapeTargetType targetType, @Param("status") ScrapeStatusType status);
 
 	// @Modifying(clearAutomatically = true)
 	// @Transactional
