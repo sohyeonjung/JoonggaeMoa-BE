@@ -34,7 +34,6 @@ public class NaverLandComplexStepConfig {
 	public Step naverLandComplexStep() {
 		return new StepBuilder("naverLandComplexStep", jobRepository)
 			.<ScrapeStatus, ScrapeStatus>chunk(1, transactionManager)
-			// Outer chunk does not keep a business DB transaction open while calling remote APIs.
 			.transactionAttribute(new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
 			.reader(naverLandComplexReader())
 			.processor(naverLandComplexProcessor())

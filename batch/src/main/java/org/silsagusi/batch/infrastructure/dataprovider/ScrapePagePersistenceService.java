@@ -16,10 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Commits one externally fetched page and its progress checkpoint in a short
- * business-DB transaction. Do not call an external API or sleep in this service.
- */
 @Service
 @RequiredArgsConstructor
 public class ScrapePagePersistenceService {
@@ -65,7 +61,6 @@ public class ScrapePagePersistenceService {
 
     @Transactional(transactionManager = "dataTransactionManager")
     public void fail(Long statusId) {
-        // Preserve the last *committed* cursor; the failing page can be retried.
         getStatus(statusId).markFailed();
     }
 

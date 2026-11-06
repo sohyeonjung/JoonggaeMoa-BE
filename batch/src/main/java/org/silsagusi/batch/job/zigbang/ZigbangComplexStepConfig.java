@@ -34,7 +34,6 @@ public class ZigbangComplexStepConfig {
 	public Step zigbangComplexStep() {
 		return new StepBuilder("zigbangComplexStep", jobRepository)
 			.<ScrapeStatus, ScrapeStatus>chunk(1, transactionManager)
-			// Outer chunk does not keep a business DB transaction open while calling remote APIs.
 			.transactionAttribute(new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
 			.reader(zigbangComplexReader())
 			.processor(zigbangComplexProcessor())
