@@ -4,10 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.silsagusi.batch.application.ArticleMapper;
-import org.silsagusi.batch.application.ArticleValidator;
 import org.silsagusi.batch.application.ComplexMapper;
-import org.silsagusi.batch.application.ComplexValidator;
-import org.silsagusi.batch.infrastructure.dataprovider.ArticleDataProvider;
 import org.silsagusi.batch.infrastructure.dataprovider.ComplexDataProvider;
 import org.silsagusi.batch.infrastructure.dataprovider.ScrapePagePersistenceService;
 import org.silsagusi.batch.zigbang.infrastructure.ZigBangApiClient;
@@ -34,13 +31,10 @@ public class ZigbangScraper {
 	private final Random random = new Random();
 
 	private final ZigBangApiClient zigBangApiClient;
-	private final ArticleDataProvider articleDataProvider;
 	private final ComplexDataProvider complexDataProvider;
 	private final ScrapePagePersistenceService pagePersistenceService;
 	private final ComplexMapper complexMapper;
 	private final ArticleMapper articleMapper;
-	private final ArticleValidator articleValidator;
-	private final ComplexValidator complexValidator;
 
 	public ScrapeStatus scrapComplex(ScrapeStatus status) throws InterruptedException {
 		Region region = status.getRegion();
