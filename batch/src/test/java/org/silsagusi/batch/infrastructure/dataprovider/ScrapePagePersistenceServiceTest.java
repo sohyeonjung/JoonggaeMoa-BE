@@ -33,7 +33,7 @@ class ScrapePagePersistenceServiceTest {
     @BeforeEach
     void setup() {
         status = mock(ScrapeStatus.class);
-        when(statusRepository.findById(7L)).thenReturn(Optional.of(status));
+        lenient().when(statusRepository.findById(7L)).thenReturn(Optional.of(status));
     }
 
     @Test
