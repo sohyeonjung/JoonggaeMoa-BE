@@ -51,6 +51,17 @@ public class ScrapeStatus {
 		return this;
 	}
 
+	// 네이버는 마지막 성공 페이지, 직방은 다음 요청 위치를 저장한다.
+	public void checkpoint(int cursor) {
+		this.lastScrapedPage = cursor;
+		this.lastScrapedAt = LocalDateTime.now();
+	}
+
+	public void markFailed() {
+		this.status = ScrapeStatusType.FAILED;
+		this.lastScrapedAt = LocalDateTime.now();
+	}
+
 	public ScrapeStatus completed() {
 		this.status = ScrapeStatusType.COMPLETED;
 		this.lastScrapedAt = LocalDateTime.now();

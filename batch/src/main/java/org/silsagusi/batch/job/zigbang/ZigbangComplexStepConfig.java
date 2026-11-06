@@ -14,6 +14,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ public class ZigbangComplexStepConfig {
 	public Step zigbangComplexStep() {
 		return new StepBuilder("zigbangComplexStep", jobRepository)
 			.<ScrapeStatus, ScrapeStatus>chunk(1, transactionManager)
+			.transactionAttribute(new DefaultTransactionAttribute(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
 			.reader(zigbangComplexReader())
 			.processor(zigbangComplexProcessor())
 			.writer(zigbangComplexWriter())
