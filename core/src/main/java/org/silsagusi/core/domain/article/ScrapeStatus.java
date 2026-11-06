@@ -51,6 +51,18 @@ public class ScrapeStatus {
 		return this;
 	}
 
+	/** Naver stores the last successful page; Zigbang stores the next offset. */
+	public void checkpoint(int cursor) {
+		this.lastScrapedPage = cursor;
+		this.lastScrapedAt = LocalDateTime.now();
+	}
+
+	/** Keep checkpoint intact so a failed page is retried, not skipped. */
+	public void markFailed() {
+		this.status = ScrapeStatusType.FAILED;
+		this.lastScrapedAt = LocalDateTime.now();
+	}
+
 	public ScrapeStatus completed() {
 		this.status = ScrapeStatusType.COMPLETED;
 		this.lastScrapedAt = LocalDateTime.now();
