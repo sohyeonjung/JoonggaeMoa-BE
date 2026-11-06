@@ -9,6 +9,7 @@ import org.silsagusi.batch.application.ComplexMapper;
 import org.silsagusi.batch.application.ComplexValidator;
 import org.silsagusi.batch.infrastructure.dataprovider.ArticleDataProvider;
 import org.silsagusi.batch.infrastructure.dataprovider.ComplexDataProvider;
+import org.silsagusi.batch.infrastructure.dataprovider.ScrapePagePersistenceService;
 import org.silsagusi.batch.naverland.infrastructure.NaverLandApiClient;
 import org.silsagusi.batch.naverland.infrastructure.dto.NaverLandArticleResponse;
 import org.silsagusi.batch.naverland.infrastructure.dto.NaverLandComplexResponse;
@@ -33,6 +34,7 @@ public class NaverLandScraper {
 	private final NaverLandApiClient naverLandApiClient;
 	private final ArticleDataProvider articleDataProvider;
 	private final ComplexDataProvider complexDataProvider;
+	private final ScrapePagePersistenceService pagePersistenceService;
 	private final ComplexMapper complexMapper;
 	private final ArticleMapper articleMapper;
 	private final ArticleValidator articleValidator;
@@ -50,10 +52,10 @@ public class NaverLandScraper {
 
 				List<Complex> complexes = naverLandComplexResponse.getResult().stream()
 					.map(response -> complexMapper.toEntity(response, region))
-					.filter(complexValidator::validateExist)
 					.toList();
 
-				complexDataProvider.saveComplexes(complexes);
+				pagePersistenceService.saveComplexPage(status.getId(), complexes, page);
+				status.checkpoint(page);
 
 				hasMore = naverLandComplexResponse.isMore();
 			} catch (Exception e) {
@@ -62,7 +64,8 @@ public class NaverLandScraper {
 					Platform.NAVERLAND, ScrapeTargetType.COMPLEX, region.getId(), page,
 					region.getCenterLat(), region.getCenterLon(), e.getMessage(), e);
 				Thread.sleep(600_000);
-				return status.failed(page);
+				status.markFailed();
+				return status;
 			}
 			page++;
 			Thread.sleep((3000 + random.nextInt(4000)));
@@ -82,10 +85,10 @@ public class NaverLandScraper {
 
 				List<Article> articles = naverLandArticleResponse.getBody().stream()
 					.map(response -> articleMapper.toEntity(response, region, null))
-					.filter(articleValidator::validateExist)
 					.toList();
 
-				articleDataProvider.saveArticles(articles);
+				pagePersistenceService.saveArticlePage(status.getId(), articles, page);
+				status.checkpoint(page);
 
 				hasMore = naverLandArticleResponse.isMore();
 			} catch (Exception e) {
@@ -94,7 +97,8 @@ public class NaverLandScraper {
 					Platform.NAVERLAND, ScrapeTargetType.ARTICLE, region.getId(), page,
 					region.getCenterLat(), region.getCenterLon(), e.getMessage(), e);
 				Thread.sleep(600_000);
-				return status.failed(page);
+				status.markFailed();
+				return status;
 			}
 			page++;
 			Thread.sleep((3000 + random.nextInt(4000)));
